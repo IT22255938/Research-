@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Input Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 12px 20px;
+            margin: 10px 5px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background: #2196F3;
+            color: white;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+        .listening {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 2px solid #2196F3;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #4caf50;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f44336;
+        }
+        #output {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 3px solid #2196F3;
+            font-family: monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .log-item {
+            margin: 5px 0;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎤 Voice Input Test for Blind Students</h1>
+    
+    <div class="test-box">
+        <h2>Test 1: Check Browser Support</h2>
+        <button onclick="testBrowserSupport()">Check Support</button>
+        <div id="status1"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>Test 2: Simple Voice Input</h2>
+        <button id="listenBtn" onclick="startListening()">🎤 Start Listening</button>
+        <button onclick="stopListening()">⏹️ Stop Listening</button>
+        <div id="status2" class="status"></div>
+        <div><strong>Heard:</strong> <span id="transcript" style="color: #2196F3; font-weight: bold;">waiting...</span></div>
+        <div><strong>Confidence:</strong> <span id="confidence">0%</span></div>
+    </div>
+
+    <div class="test-box">
+        <h2>Test 3: Voice with Timeout</h2>
+        <button onclick="startListeningWithTimeout()">🎤 Listen (10 sec timeout)</button>
+        <div id="status3" class="status"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>Debug Logs</h2>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        let recognition = null;
+        let isListening = false;
+
+        function log(message) {
+            const output = document.getElementById('output');
+            const item = document.createElement('div');
+            item.className = 'log-item';
+            item.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            output.appendChild(item);
+            output.scrollTop = output.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = 'status ' + (type || '');
+        }
+
+        function testBrowserSupport() {
+            log('Testing browser support...');
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList;
+            const SpeechRecognitionEvent = window.SpeechRecognitionEvent || window.webkitSpeechRecognitionEvent;
+            
+            if (SpeechRecognition) {
+                log('✅ Speech Recognition API is supported!');
+                updateStatus('status1', '✅ Your browser supports voice input!', 'success');
+                
+                // Initialize
+                recognition = new SpeechRecognition();
+                setupRecognition();
+                return true;
+            } else {
+                log('❌ Speech Recognition API NOT supported');
+                updateStatus('status1', '❌ Your browser does NOT support voice input. Use Chrome, Edge, or Firefox.', 'error');
+                return false;
+            }
+        }
+
+        function setupRecognition() {
+            if (!recognition) return;
+
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                log('🎤 Listening started...');
+                isListening = true;
+                document.getElementById('listenBtn').disabled = true;
+                updateStatus('status2', '🎤 Listening... Please speak now', 'listening');
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    const confidence = (event.results[i][0].confidence * 100).toFixed(0);
+
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                        log(`✅ Final: "${transcript}" (${confidence}% confidence)`);
+                        document.getElementById('confidence').textContent = confidence + '%';
+                    } else {
+                        interimTranscript += transcript;
+                        log(`📝 Interim: "${interimTranscript}"`);
+                    }
+                }
+
+                const displayText = finalTranscript || interimTranscript;
+                document.getElementById('transcript').textContent = displayText || 'waiting...';
+            };
+
+            recognition.onerror = (event) => {
+                log(`❌ Error: ${event.error}`);
+                updateStatus('status2', `❌ Error: ${event.error}`, 'error');
+                document.getElementById('listenBtn').disabled = false;
+            };
+
+            recognition.onend = () => {
+                log('⏹️ Listening stopped');
+                isListening = false;
+                const transcript = document.getElementById('transcript').textContent;
+                if (transcript && transcript !== 'waiting...') {
+                    updateStatus('status2', `✅ Heard: "${transcript}"`, 'success');
+                } else {
+                    updateStatus('status2', '⚠️ No speech detected. Try again.', 'error');
+                }
+                document.getElementById('listenBtn').disabled = false;
+            };
+        }
+
+        function startListening() {
+            if (!recognition) {
+                if (!testBrowserSupport()) {
+                    return;
+                }
+            }
+
+            document.getElementById('transcript').textContent = 'listening...';
+            document.getElementById('confidence').textContent = '0%';
+            
+            try {
+                recognition.start();
+                log('Started recognition');
+            } catch (e) {
+                log(`Error starting: ${e.message}`);
+            }
+        }
+
+        function stopListening() {
+            if (recognition && isListening) {
+                recognition.stop();
+                log('Stopped recognition');
+            }
+        }
+
+        function startListeningWithTimeout() {
+            if (!recognition) {
+                if (!testBrowserSupport()) {
+                    return;
+                }
+            }
+
+            updateStatus('status3', '🎤 Listening for 10 seconds...', 'listening');
+            log('Starting with 10 second timeout');
+            
+            try {
+                recognition.start();
+                setTimeout(() => {
+                    if (isListening) {
+                        recognition.stop();
+                        log('Timeout reached, stopping');
+                    }
+                }, 10000);
+            } catch (e) {
+                log(`Error: ${e.message}`);
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            log('Page loaded. Click "Check Support" to begin.');
+        });
+    </script>
+</body>
+</html>

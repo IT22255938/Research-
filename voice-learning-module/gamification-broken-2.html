@@ -1,0 +1,2755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gamification Dashboard - Track progress, earn badges, and compete on leaderboards">
+    <meta name="theme-color" content="#667eea">
+    <title>Gamification Dashboard - VoiceLearn Pro</title>
+    
+    <!-- Design System & Components CSS -->
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <link rel="stylesheet" href="src/styles/components.css">
+    
+    <style>
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            margin: 0;
+            padding: 0;
+        }
+
+        .app-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: var(--spacing-lg) 0;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: var(--z-fixed);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--spacing-lg);
+            gap: var(--spacing-lg);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-size: 1.5rem;
+            font-weight: var(--font-weight-bold);
+        }
+
+        .brand-icon {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: var(--spacing-xl) auto;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .profile-card {
+            background: var(--color-bg-primary);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .profile-card h1 {
+            margin-top: 0;
+            margin-bottom: var(--spacing-lg);
+            font-size: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .card {
+            background: var(--color-bg-primary);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition-all);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+        }
+
+        .card h2 {
+            color: var(--color-text-primary);
+            margin-top: 0;
+            margin-bottom: var(--spacing-md);
+            font-size: var(--font-size-lg);
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--color-bg-secondary);
+            border-radius: var(--radius-lg);
+        }
+
+        .stat-number {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        /* ===== INTERACTIVE ELEMENTS & ANIMATIONS ===== */
+
+        /* Mascot Character */
+        .mascot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 60px;
+            cursor: pointer;
+            animation: mascot-idle 3s ease-in-out infinite;
+            z-index: 100;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+            pointer-events: auto;
+        }
+
+        .mascot:hover {
+            animation: mascot-happy 0.5s ease-in-out;
+        }
+
+        .mascot.celebrating {
+            animation: mascot-celebrate 1s ease-in-out;
+        }
+
+        @keyframes mascot-idle {
+            0%, 100% { transform: translateY(0px) scaleX(1); }
+            25% { transform: translateY(-5px) scaleX(1); }
+            50% { transform: translateY(-10px) scaleX(1); }
+            75% { transform: translateY(-5px) scaleX(1); }
+        }
+
+        @keyframes mascot-happy {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes mascot-celebrate {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-15deg) scale(1.1); }
+            50% { transform: rotate(15deg) scale(1.1); }
+            75% { transform: rotate(-10deg) scale(1.05); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        /* Mascot Speech Bubble */
+        .mascot-bubble {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border-bottom-right-radius: 2px;
+            max-width: 200px;
+            font-size: 0.9em;
+            font-weight: bold;
+            animation: bubble-pop-in 0.3s ease-out;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .mascot-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 15px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-top: 8px solid #667eea;
+        }
+
+        @keyframes bubble-pop-in {
+            0% { transform: scale(0.3) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        /* Celebration Animations */
+        .celebration {
+            position: fixed;
+            pointer-events: none;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            animation: confetti-fall 3s ease-in forwards;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(800px) translateX(var(--tx)) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Achievement Badge Animation */
+        .achievement-pop {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            animation: achievement-pop-up 2s ease-out forwards;
+            pointer-events: none;
+            z-index: 200;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+        }
+
+        @keyframes achievement-pop-up {
+            0% { 
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 1;
+            }
+            10% { 
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            90% { 
+                transform: translate(-50%, calc(-50% - 400px)) scale(1);
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(-50%, calc(-50% - 400px)) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Progress Bar Animation */
+        .progress-bar {
+            background: white;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3655df 0%, #c7a4ea 100%);
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .progress-bar-fill.pulse {
+            animation: progress-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes progress-pulse {
+            0%, 100% { box-shadow: inset 0 0 0px rgba(255,255,255,0); }
+            50% { box-shadow: inset 0 0 10px rgba(255,255,255,0.5); }
+        }
+
+        /* Bounce Animation */
+        .bounce {
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Pulse Animation */
+        .pulse {
+            animation: pulse-effect 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-effect {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Flash Animation */
+        .flash {
+            animation: flash-effect 0.4s ease-in-out;
+        }
+
+        @keyframes flash-effect {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Shake Animation */
+        .shake {
+            animation: shake-effect 0.4s ease-in-out;
+        }
+
+        @keyframes shake-effect {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Slide In Animation */
+        .slide-in {
+            animation: slide-in-effect 0.5s ease-out;
+        }
+
+        @keyframes slide-in-effect {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Success Checkmark Animation */
+        .success-checkmark {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto;
+        }
+
+        .success-checkmark .check-icon {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            border-radius: 50%;
+            box-sizing: content-box;
+            border: 4px solid #4CAF50;
+            border-bottom-color: transparent;
+            border-right-color: transparent;
+            animation: spin-success 0.6s linear forwards;
+            margin: 0 auto;
+        }
+
+        @keyframes spin-success {
+            0% {
+                border-top-color: transparent;
+                border-left-color: transparent;
+                transform: rotate(0deg);
+            }
+            100% {
+                border-top-color: #4CAF50;
+                border-left-color: #4CAF50;
+                transform: rotate(-45deg);
+            }
+        }
+
+        /* XP Floating Text */
+        .xp-float {
+            position: fixed;
+            pointer-events: none;
+            font-weight: bold;
+            font-size: 1.2em;
+            animation: xp-float-up 2s ease-out forwards;
+        }
+
+        @keyframes xp-float-up {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        /* Streak Counter Animation */
+        .streak-fire {
+            display: inline-block;
+            animation: flame-flicker 0.6s ease-in-out;
+        }
+
+        @keyframes flame-flicker {
+            0%, 100% { transform: scaleY(1) scaleX(1); }
+            25% { transform: scaleY(1.1) scaleX(0.95); }
+            50% { transform: scaleY(0.95) scaleX(1.05); }
+            75% { transform: scaleY(1.05) scaleX(0.98); }
+        }
+
+        /* Star Burst Animation */
+        .star-burst {
+            position: fixed;
+            font-size: 30px;
+            animation: star-burst-animate 1.5s ease-out forwards;
+            pointer-events: none;
+            z-index: 150;
+        }
+
+        @keyframes star-burst-animate {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1) rotate(360deg) translateY(-80px);
+                opacity: 0;
+            }
+        }
+
+        /* Victory Dance */
+        .victory-dance {
+            animation: victory-bounce 0.6s ease-in-out;
+        }
+
+        @keyframes victory-bounce {
+            0% { transform: scaleY(1); }
+            25% { transform: scaleY(0.95); }
+            50% { transform: scaleY(1.1); }
+            100% { transform: scaleY(1); }
+        }
+
+        /* Gamification Animations */
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* Rewards Card Styles */
+        .rewards-card {
+            background: linear-gradient(135deg, #859af7 0%, #dbc5f0 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .rewards-card .value {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .rewards-card .label {
+            font-size: 0.9em;
+        }
+
+        /* Difficulty Level Buttons */
+        button[onclick*="setDifficulty"] {
+            display: inline-block;
+            font-family: inherit;
+            outline: none;
+        }
+
+        button[onclick*="setDifficulty"]:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transform: translateY(-2px);
+        }
+
+        button[onclick*="setDifficulty"]:active {
+            opacity: 1;
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Activity Buttons */
+        button[onclick*="startActivity"] {
+            display: flex;
+            flex-direction: column;
+            outline: none;
+        }
+
+        button[onclick*="startActivity"]:hover {
+            opacity: 0.95;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        button[onclick*="startActivity"]:active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+            opacity: 0.9;
+        }
+
+        .rewards-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .badge-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
+        }
+
+        .badge-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .badge-item .emoji {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .badge-item .name {
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .leaderboard-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Professional Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-icon">🎮</div>
+                <div class="brand-name">
+                    <div style="font-size: 1.2em;">Gamification Dashboard</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="alert('Home - Coming soon')">← Home</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Student Profile Card -->
+        <div class="profile-card">
+            <h1 style="margin: 0 0 var(--spacing-md) 0; color: var(--color-primary); font-size: 1.8rem;">Welcome Back! 👋</h1>
+            
+            <!-- Gamification Rewards Section -->
+            <div style="margin-bottom: var(--spacing-lg); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: var(--spacing-lg); border-radius: var(--radius-lg); color: white;">
+                <h3 style="margin: 0 0 var(--spacing-md) 0; font-size: 1.4rem;">🎮 Gamification Rewards</h3>
+                <div class="rewards-container">
+                    <div class="rewards-card">
+                        <div class="label">💎 Total XP</div>
+                        <div class="value" id="totalXPDisplay">0</div>
+                        <div class="label">points earned</div>
+                    </div>
+                    <div class="rewards-card">
+                        <div class="label">🔥 Current Streak</div>
+                        <div class="value" id="streakDisplay">0</div>
+                        <div class="label">days in a row</div>
+                    </div>
+                    <div class="rewards-card">
+                        <div class="label">🏆 Badges Earned</div>
+                        <div class="value" id="badgesDisplay">0</div>
+                        <div class="label">achievements unlocked</div>
+                    </div>
+                    <div class="rewards-card">
+                        <div class="label">🔥 Combo Multiplier</div>
+                        <div class="value" id="comboDisplay">100%</div>
+                        <div class="label">bonus on correct</div>
+                    </div>
+                </div>
+                
+                <!-- Badges Section -->
+                <div style="margin-top: var(--spacing-md);">
+                    <h4 style="margin: 0 0 var(--spacing-sm) 0; font-size: 1.2rem;">🎯 Badges Earned</h4>
+                    <div id="badgesContainer" class="badge-grid">
+                        <p style="grid-column: 1/-1; text-align: center; opacity: 0.8; margin: 10px 0;">Complete challenges to earn badges!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: var(--spacing-lg);">
+                <h3 style="margin: 0 0 var(--spacing-md) 0; font-size: 1.4rem; color: var(--color-primary);">📊 Your Progress</h3>
+                
+                <!-- Main Stats Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalAttemptsCount">0</div>
+                        <div class="stat-label">Total Questions</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="accuracyCount">0%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="xpCount">0</div>
+                        <div class="stat-label">Total XP</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="streakCount">0</div>
+                        <div class="stat-label">Current Streak</div>
+                    </div>
+                </div>
+
+                <!-- Progress Details Tabs -->
+                <div style="background: var(--color-bg-secondary); border-radius: var(--radius-lg); padding: var(--spacing-md); margin-bottom: var(--spacing-md);">
+                    <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); border-bottom: 2px solid var(--color-border); padding-bottom: var(--spacing-sm);">
+                        <button onclick="showProgressTab('overview')" id="tabOverview" class="progress-tab-btn" style="padding: 8px 16px; background: var(--color-primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; pointer-events: auto; z-index: 10; position: relative;">Overview</button>
+                        <button onclick="showProgressTab('activities')" id="tabActivities" class="progress-tab-btn" style="padding: 8px 16px; background: transparent; color: var(--color-text-secondary); border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; pointer-events: auto; z-index: 10; position: relative;">By Activity</button>
+                        <button onclick="showProgressTab('weak')" id="tabWeak" class="progress-tab-btn" style="padding: 8px 16px; background: transparent; color: var(--color-text-secondary); border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; pointer-events: auto; z-index: 10; position: relative;">Weak Areas</button>
+                    </div>
+
+                    <!-- Overview Tab -->
+                    <div id="overviewTab" class="progress-tab" style="display: block;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                            <div>
+                                <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--color-text-secondary); font-size: 1.1em; font-weight: bold;">Accuracy Progress</p>
+                                <div style="background: white; height: 30px; border-radius: 15px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                                    <div id="accuracyBar" style="height: 100%; background: linear-gradient(90deg, var(--color-success) 0%, var(--color-primary) 100%); width: 0%; transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.9em; font-weight: bold;"></div>
+                                </div>
+                                <p style="margin: var(--spacing-xs) 0 0 0; color: var(--color-text-secondary); font-size: 1.05em;" id="accuracyDetail">0 correct out of 0 attempts</p>
+                            </div>
+                            <div>
+                                <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--color-text-secondary); font-size: 1.1em; font-weight: bold;">XP Earned</p>
+                                <div style="background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); padding: var(--spacing-md); border-radius: var(--radius-lg); color: white; text-align: center;">
+                                    <div style="font-size: 2.2em; font-weight: bold;" id="xpDisplay">0</div>
+                                    <div style="font-size: 1.05em; opacity: 0.9;">points earned</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: var(--spacing-md); padding: var(--spacing-md); background: #060606; border-radius: var(--radius-lg);">
+                            <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--color-text-secondary); font-size: 1.1em; font-weight: bold;">Session Summary</p>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-sm);">
+                                <div style="text-align: center;">
+                                    <div style="color: var(--color-success); font-size: 1.5em; font-weight: bold;" id="correctAnswers">0</div>
+                                    <div style="color: var(--color-text-secondary); font-size: 0.8em;">Correct</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="color: var(--color-warning); font-size: 1.2em; font-weight: bold;" id="incorrectAnswers">0</div>
+                                    <div style="color: var(--color-text-secondary); font-size: 0.8em;">Incorrect</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="color: var(--color-info); font-size: 1.2em; font-weight: bold;" id="avgResponseTime">0ms</div>
+                                    <div style="color: var(--color-text-secondary); font-size: 0.8em;">Avg Response</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activities Tab -->
+                    <div id="activitiesTab" class="progress-tab" style="display: none;">
+                        <div id="activitiesProgressList" style="display: grid; gap: var(--spacing-md);">
+                            <p style="color: var(--color-text-secondary); text-align: center; font-size: 0.9em;">No activity data yet. Start an activity to see your progress!</p>
+                        </div>
+                    </div>
+
+                    <!-- Weak Areas Tab -->
+                    <div id="weakTab" class="progress-tab" style="display: none;">
+                        <div id="weakAreasList" style="display: grid; gap: var(--spacing-md);">
+                            <p style="color: var(--color-text-secondary); text-align: center; font-size: 0.9em;">No weak areas identified yet. Keep practicing!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <!--div class="dashboard-grid">
+            < Badges Section >
+            <div class="card">
+                <h2>⭐ Badges Earned</h2>
+                <div id="badgesContainer" style="min-height: 100px;">
+                    <p style="color: var(--color-text-secondary); text-align: center; font-size: var(--font-size-sm);">No badges earned yet. Start an activity!</p>
+                </div>
+            </div>
+
+            <!-- Achievements Section -->
+            <div class="card">
+                <h2>🏆 Recent Achievements</h2>
+                <div id="achievementsList" style="min-height: 100px;">
+                    <p style="color: var(--color-text-secondary); text-align: center; font-size: var(--font-size-sm);">Complete activities to earn achievements!</p>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="card">
+                <h2>🥇 Top Learners</h2>
+                <div id="leaderboardList" style="min-height: 100px;">
+                    <p style="color: var(--color-text-secondary); text-align: center; font-size: var(--font-size-sm);">Start learning to see the leaderboard!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activities Section -->
+        <div class="card">
+            <h2>📚 Learning Activities</h2>
+            <div style="margin-bottom: 20px; padding: 15px; background: #b1c1ed; border-radius: 8px; text-align: center;">
+                <p style="margin: 0 0 15px 0; color: #333; font-weight: bold; font-size: 1.1em;">⚙️ Step 1: Select Difficulty Level:</p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 10;">
+                    <button type="button" onclick="setDifficulty('easy')" style="padding: 12px 24px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; pointer-events: auto; z-index: 10; position: relative; font-size: 1.05em; transition: all 0.2s ease; min-width: 120px;">🟢 Easy</button>
+                    <button type="button" onclick="setDifficulty('medium')" style="padding: 12px 24px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; pointer-events: auto; z-index: 10; position: relative; font-size: 1.05em; transition: all 0.2s ease; min-width: 120px;">🟡 Medium</button>
+                    <button type="button" onclick="setDifficulty('hard')" style="padding: 12px 24px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; pointer-events: auto; z-index: 10; position: relative; font-size: 1.05em; transition: all 0.2s ease; min-width: 120px;">🔴 Hard</button>
+                </div>
+                <p style="margin: 15px 0 0 0; color: #555; font-size: 1em; font-weight: 500;" id="difficultyInfo">👈 Select a difficulty level above to begin</p>
+            </div>
+            <p style="margin-bottom: 15px; padding: 10px; background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; border-radius: 4px; font-weight: 500;">⬇️ Step 2: Then click on any activity card below to start learning!</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px;">
+                <button onclick="startActivity('counting-adventure')" class="btn btn-primary" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; min-height: 160px; pointer-events: auto; z-index: 10;">
+                    <div style="font-size: 3em; margin-bottom: 10px; line-height: 1;">🔢</div>
+                    <div style="font-weight: bold; font-size: 1em; text-align: center;">Counting<br>Adventure</div>
+                </button>
+                <button onclick="startActivity('number-recognition')" class="btn btn-primary" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; min-height: 160px; pointer-events: auto; z-index: 10;">
+                    <div style="font-size: 3em; margin-bottom: 10px; line-height: 1;">🎯</div>
+                    <div style="font-weight: bold; font-size: 1em; text-align: center;">Number<br>Recognition</div>
+                </button>
+                <button onclick="startActivity('basic-math')" class="btn btn-primary" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; min-height: 160px; pointer-events: auto; z-index: 10;">
+                    <div style="font-size: 3em; margin-bottom: 10px; line-height: 1;">➕</div>
+                    <div style="font-weight: bold; font-size: 1em; text-align: center;">Basic<br>Math</div>
+                </button>
+                <button onclick="startActivity('alphabet-learning')" class="btn btn-primary" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; min-height: 160px; pointer-events: auto; z-index: 10;">
+                    <div style="font-size: 3em; margin-bottom: 10px; line-height: 1;">🔤</div>
+                    <div style="font-weight: bold; font-size: 1em; text-align: center;">Alphabet<br>Learning</div>
+                </button>
+                <button onclick="startActivity('colors-shapes')" class="btn btn-primary" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; min-height: 160px; pointer-events: auto; z-index: 10;">
+                    <div style="font-size: 3em; margin-bottom: 10px; line-height: 1;">🎨</div>
+                    <div style="font-weight: bold; font-size: 1em; text-align: center;">Colors &<br>Shapes</div>
+                </button>
+                <button onclick="startActivity('phonics-sounds')" class="btn btn-primary" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; min-height: 160px; pointer-events: auto; z-index: 10;">
+                    <div style="font-size: 3em; margin-bottom: 10px; line-height: 1;">🔊</div>
+                    <div style="font-weight: bold; font-size: 1em; text-align: center;">Phonics<br>Sounds</div>
+                </button>
+                <button onclick="startActivity('time-telling')" class="btn btn-primary" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; min-height: 160px; pointer-events: auto; z-index: 10;">
+                    <div style="font-size: 3em; margin-bottom: 10px; line-height: 1;">🕐</div>
+                    <div style="font-weight: bold; font-size: 1em; text-align: center;">Time<br>Telling</div>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- AI Buddy Mascot -->
+    <div class="mascot" id="mascot" onclick="mascotInteraction()">🤖</div>
+    <div class="mascot-bubble" id="mascotBubble" style="display: none;"></div>
+
+    <!-- Audio Elements for Sound Effects -->
+    <audio id="correctSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==" type="audio/wav">
+    </audio>
+    <audio id="incorrectSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==" type="audio/wav">
+    </audio>
+    <audio id="celebrateSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==" type="audio/wav">
+    </audio>
+
+    <script>
+        // ===== SOUND EFFECTS MANAGER =====
+        const soundEffects = {
+            correct: () => playTone(800, 100),
+            incorrect: () => playTone(400, 150),
+            celebrate: () => {
+                playTone(600, 100);
+                setTimeout(() => playTone(800, 100), 100);
+                setTimeout(() => playTone(1000, 100), 200);
+            },
+            levelUp: () => {
+                playTone(1200, 100);
+                setTimeout(() => playTone(1500, 100), 100);
+            }
+        };
+
+        function playTone(frequency, duration) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration / 1000);
+            } catch (e) {
+                console.log('Audio context not available');
+            }
+        }
+
+        // ===== ANIMATION EFFECTS MANAGER =====
+        function triggerSuccess(message = '✨ Correct!') {
+            soundEffects.correct();
+            triggerAchievementPopup('⭐');
+            triggerXPFloat(10, event?.clientX || window.innerWidth / 2, event?.clientY || window.innerHeight / 2);
+            mascotReact('happy');
+        }
+
+        function triggerFailure() {
+            soundEffects.incorrect();
+            mascotReact('sad');
+        }
+
+        function triggerCelebration() {
+            soundEffects.celebrate();
+            createConfetti();
+            triggerAchievementPopup('🎉');
+            mascotReact('celebrate');
+            showMascotMessage('Outstanding! You nailed it! 🌟');
+        }
+
+        function createConfetti() {
+            const confettiCount = 30;
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24'];
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = '-10px';
+                confetti.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
+
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        function triggerAchievementPopup(emoji) {
+            const popup = document.createElement('div');
+            popup.className = 'achievement-pop';
+            popup.textContent = emoji;
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 2000);
+        }
+
+        function triggerXPFloat(amount, x, y) {
+            const xpText = document.createElement('div');
+            xpText.className = 'xp-float';
+            xpText.textContent = '+' + amount + ' XP';
+            xpText.style.left = x + 'px';
+            xpText.style.top = y + 'px';
+            xpText.style.color = '#FFD700';
+
+            document.body.appendChild(xpText);
+            setTimeout(() => xpText.remove(), 2000);
+        }
+
+        // ===== MASCOT INTERACTIONS =====
+        const mascotMessages = {
+            happy: [
+                '💭 Great job!',
+                '💭 Keep going!',
+                '💭 You\'re awesome!',
+                '💭 Nice answer!',
+                '💭 Well done!'
+            ],
+            sad: [
+                '💭 Try again!',
+                '💭 Almost there!',
+                '💭 Don\'t worry, you\'ve got this!',
+                '💭 Keep practicing!'
+            ],
+            celebrate: [
+                '🎉 Perfect score!',
+                '🌟 You\'re amazing!',
+                '🚀 Level up!',
+                '👏 Fantastic work!'
+            ]
+        };
+
+        function mascotReact(emotion) {
+            const mascot = document.getElementById('mascot');
+            const messages = mascotMessages[emotion] || [];
+            
+            if (emotion === 'happy') {
+                mascot.classList.add('bounce');
+                setTimeout(() => mascot.classList.remove('bounce'), 600);
+            } else if (emotion === 'celebrate') {
+                mascot.classList.add('celebrating');
+                setTimeout(() => mascot.classList.remove('celebrating'), 1000);
+            } else if (emotion === 'sad') {
+                mascot.classList.add('shake');
+                setTimeout(() => mascot.classList.remove('shake'), 400);
+            }
+
+            if (messages.length > 0) {
+                const message = messages[Math.floor(Math.random() * messages.length)];
+                showMascotMessage(message);
+            }
+        }
+
+        function showMascotMessage(message) {
+            const bubble = document.getElementById('mascotBubble');
+            bubble.textContent = message;
+            bubble.style.display = 'block';
+            
+            setTimeout(() => {
+                bubble.style.display = 'none';
+            }, 3000);
+        }
+
+        function mascotInteraction() {
+            const mascot = document.getElementById('mascot');
+            mascot.classList.add('bounce');
+            setTimeout(() => mascot.classList.remove('bounce'), 600);
+            
+            const phrases = [
+                '👋 Hello! I\'m here to help!',
+                '🎮 Ready to learn today?',
+                '🌟 Keep up the amazing work!',
+                '💪 You\'re doing great!',
+                '🎯 Focus and do your best!'
+            ];
+            
+            const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+            showMascotMessage(phrase);
+        }
+
+        // ===== PROGRESS BAR ANIMATION =====
+        function animateProgressBar(element, targetWidth, duration = 600) {
+            if (!element) return;
+            
+            const startWidth = parseFloat(element.style.width) || 0;
+            const difference = targetWidth - startWidth;
+            const steps = 60;
+            const stepDuration = duration / steps;
+            let currentStep = 0;
+
+            const animate = () => {
+                currentStep++;
+                const progress = currentStep / steps;
+                const easeProgress = progress * (2 - progress); // Ease-out quad
+                const currentWidth = startWidth + (difference * easeProgress);
+                
+                element.style.width = currentWidth + '%';
+                if (currentWidth >= targetWidth && currentWidth > 0) {
+                    element.classList.add('pulse');
+                    setTimeout(() => element.classList.remove('pulse'), 1500);
+                }
+
+                if (currentStep < steps) {
+                    setTimeout(animate, stepDuration);
+                }
+            };
+
+            animate();
+        }
+
+        // ===== STREAK ANIMATION =====
+        function animateStreak() {
+            const streakElement = document.getElementById('streakCount');
+            if (streakElement) {
+                streakElement.classList.add('streak-fire');
+                setTimeout(() => streakElement.classList.remove('streak-fire'), 600);
+            }
+        }
+
+        // ===== ENHANCED ANSWER VALIDATION WITH ANIMATIONS =====
+        function recordVoiceAnswerWithEffects(isCorrect) {
+            if (isCorrect) {
+                triggerSuccess();
+                animateProgressBar(document.getElementById('accuracyBar'), window.currentAccuracy);
+                animateStreak();
+                showMascotMessage(mascotMessages.happy[Math.floor(Math.random() * mascotMessages.happy.length)]);
+            } else {
+                triggerFailure();
+                showMascotMessage(mascotMessages.sad[Math.floor(Math.random() * mascotMessages.sad.length)]);
+            }
+        }
+
+        // ===== LEVEL UP ANIMATION =====
+        function triggerLevelUp() {
+            soundEffects.levelUp();
+            triggerAchievementPopup('🏆');
+            createConfetti();
+            showMascotMessage('🎉 Difficulty Unlocked!');
+            mascotReact('celebrate');
+        }
+
+        // Initialize page
+        function init() {
+            console.log('✓ Gamification Dashboard Initialized');
+            loadStudentData();
+        }
+
+        // Load student data
+        function loadStudentData() {
+            try {
+                // Get or create student ID
+                let studentId = localStorage.getItem('studentId');
+                if (!studentId) {
+                    studentId = 'student_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('studentId', studentId);
+                    console.log('Created student ID:', studentId);
+                }
+
+                // Initialize performance tracking system
+                let performanceData = localStorage.getItem('performanceData');
+                if (!performanceData) {
+                    performanceData = {
+                        totalAttempts: 0,
+                        totalCorrect: 0,
+                        activityStats: {}, // Track per-activity performance
+                        sessionHistory: [], // Track sessions for spaced repetition
+                        difficultQuestions: [] // Questions that need review
+                    };
+                    localStorage.setItem('performanceData', JSON.stringify(performanceData));
+                } else {
+                    performanceData = JSON.parse(performanceData);
+                }
+                
+                window.performanceData = performanceData;
+
+                // Calculate overall accuracy
+                const totalAttempts = performanceData.totalAttempts || 0;
+                const totalCorrect = performanceData.totalCorrect || 0;
+                const accuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+
+                // Update dashboard with real data
+                document.getElementById('totalAttemptsCount').textContent = totalAttempts;
+                document.getElementById('accuracyCount').textContent = accuracy + '%';
+                document.getElementById('xpCount').textContent = totalCorrect * 10; // 10 XP per correct answer
+                document.getElementById('streakCount').textContent = calculateStreak(performanceData.sessionHistory || []);
+                
+                // Update progress bars and details
+                document.getElementById('accuracyBar').style.width = accuracy + '%';
+                document.getElementById('accuracyBar').textContent = accuracy + '%';
+                document.getElementById('accuracyDetail').textContent = `${totalCorrect} correct out of ${totalAttempts} attempts`;
+                document.getElementById('xpDisplay').textContent = totalCorrect * 10;
+                document.getElementById('correctAnswers').textContent = totalCorrect;
+                document.getElementById('incorrectAnswers').textContent = totalAttempts - totalCorrect;
+                
+                // Calculate average response time
+                const avgResponseTime = calculateAverageResponseTime(performanceData.activityStats || {});
+                document.getElementById('avgResponseTime').textContent = avgResponseTime + 'ms';
+                
+                // Load activity progress details
+                updateProgressDisplay(performanceData);
+                
+                // Initialize difficulty to medium
+                window.currentDifficulty = 'medium';
+                window.sessionStartTime = new Date();
+                console.log('Dashboard loaded with performance tracking');
+            } catch (error) {
+                console.error('Error loading student data:', error);
+            }
+        }
+
+        // Calculate current streak
+        function calculateStreak(sessionHistory) {
+            if (!sessionHistory || sessionHistory.length === 0) return 0;
+            let streak = 0;
+            for (let i = sessionHistory.length - 1; i >= 0; i--) {
+                if (sessionHistory[i].score > 0) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            return streak;
+        }
+
+        // Calculate average response time
+        function calculateAverageResponseTime(activityStats) {
+            let totalTime = 0;
+            let totalQuestions = 0;
+            for (const activityId in activityStats) {
+                const activity = activityStats[activityId];
+                if (activity.avgResponseTime) {
+                    totalTime += activity.avgResponseTime * (activity.attempts || 1);
+                    totalQuestions += activity.attempts || 1;
+                }
+            }
+            return totalQuestions > 0 ? Math.round(totalTime / totalQuestions) : 0;
+        }
+
+        // Show progress tab
+        function showProgressTab(tabName) {
+            // Hide all tabs
+            document.getElementById('overviewTab').style.display = 'none';
+            document.getElementById('activitiesTab').style.display = 'none';
+            document.getElementById('weakTab').style.display = 'none';
+            
+            // Reset all tab buttons
+            document.getElementById('tabOverview').style.background = 'transparent';
+            document.getElementById('tabOverview').style.color = 'var(--color-text-secondary)';
+            document.getElementById('tabActivities').style.background = 'transparent';
+            document.getElementById('tabActivities').style.color = 'var(--color-text-secondary)';
+            document.getElementById('tabWeak').style.background = 'transparent';
+            document.getElementById('tabWeak').style.color = 'var(--color-text-secondary)';
+            
+            // Show selected tab
+            if (tabName === 'overview') {
+                document.getElementById('overviewTab').style.display = 'block';
+                document.getElementById('tabOverview').style.background = 'var(--color-primary)';
+                document.getElementById('tabOverview').style.color = 'white';
+            } else if (tabName === 'activities') {
+                document.getElementById('activitiesTab').style.display = 'block';
+                document.getElementById('tabActivities').style.background = 'var(--color-primary)';
+                document.getElementById('tabActivities').style.color = 'white';
+                updateActivityProgressList();
+            } else if (tabName === 'weak') {
+                document.getElementById('weakTab').style.display = 'block';
+                document.getElementById('tabWeak').style.background = 'var(--color-primary)';
+                document.getElementById('tabWeak').style.color = 'white';
+                updateWeakAreasList();
+            }
+        }
+
+        // Update activity progress list
+        function updateActivityProgressList() {
+            const performanceData = window.performanceData || {};
+            const activityStats = performanceData.activityStats || {};
+            const activitiesContainer = document.getElementById('activitiesProgressList');
+            
+            if (Object.keys(activityStats).length === 0) {
+                activitiesContainer.innerHTML = '<p style="color: var(--color-text-secondary); text-align: center; font-size: 0.9em;">No activity data yet. Start an activity to see your progress!</p>';
+                return;
+            }
+
+            let html = '';
+            for (const activityId in activityStats) {
+                const activity = activityStats[activityId];
+                const accuracy = activity.attempts > 0 ? Math.round((activity.correct / activity.attempts) * 100) : 0;
+                const activityNames = {
+                    'counting-adventure': '🔢 Counting Adventure',
+                    'number-recognition': '🎯 Number Recognition',
+                    'basic-math': '➕ Basic Math',
+                    'alphabet-learning': '🔤 Alphabet Learning',
+                    'colors-shapes': '🎨 Colors & Shapes',
+                    'phonics-sounds': '🔊 Phonics Sounds',
+                    'time-telling': '🕐 Time Telling'
+                };
+                
+                html += `
+                    <div style="background: var(--color-bg-primary); padding: var(--spacing-md); border-radius: var(--radius-lg); border-left: 4px solid var(--color-primary);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-sm);">
+                            <span style="font-weight: bold; color: var(--color-text-primary);">${activityNames[activityId] || activityId}</span>
+                            <span style="background: var(--color-primary); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85em;">${accuracy}%</span>
+                        </div>
+                        <div style="background: white; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: var(--spacing-sm);">
+                            <div style="height: 100%; background: linear-gradient(90deg, var(--color-success), var(--color-primary)); width: ${accuracy}%; transition: width 0.3s ease;"></div>
+                        </div>
+                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 0.85em;">
+                            ${activity.correct} correct out of ${activity.attempts} attempts • Avg response: ${Math.round(activity.avgResponseTime || 0)}ms
+                        </p>
+                    </div>
+                `;
+            }
+            activitiesContainer.innerHTML = html;
+        }
+
+        // Update weak areas list
+        function updateWeakAreasList() {
+            const performanceData = window.performanceData || {};
+            const difficultQuestions = performanceData.difficultQuestions || [];
+            const weakAreasContainer = document.getElementById('weakAreasList');
+            
+            if (difficultQuestions.length === 0) {
+                weakAreasContainer.innerHTML = '<p style="color: var(--color-text-secondary); text-align: center; font-size: 0.9em;">No weak areas identified yet. Keep practicing!</p>';
+                return;
+            }
+
+            const activityNames = {
+                'counting-adventure': '🔢 Counting Adventure',
+                'number-recognition': '🎯 Number Recognition',
+                'basic-math': '➕ Basic Math',
+                'alphabet-learning': '🔤 Alphabet Learning',
+                'colors-shapes': '🎨 Colors & Shapes',
+                'phonics-sounds': '🔊 Phonics Sounds',
+                'time-telling': '🕐 Time Telling'
+            };
+
+            let html = '';
+            difficultQuestions.slice(0, 10).forEach(q => {
+                const accuracy = q.correctAttempts > 0 ? Math.round((q.correctAttempts / q.attempts) * 100) : 0;
+                const daysAdded = Math.floor((Date.now() - new Date(q.dateAdded).getTime()) / (1000 * 60 * 60 * 24));
+                
+                html += `
+                    <div style="background: #fff3cd; padding: var(--spacing-md); border-radius: var(--radius-lg); border-left: 4px solid #ff9800;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                            <span style="font-weight: bold; color: #333;">${activityNames[q.activityId] || q.activityId} - Question ${q.questionIndex + 1}</span>
+                            <span style="background: #ff9800; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85em; font-weight: bold;">⚠️ ${accuracy}%</span>
+                        </div>
+                        <p style="margin: 0; color: #555; font-size: 0.9em;">
+                            ${q.attempts} attempts • ${q.correctAttempts} correct • Added ${daysAdded} days ago
+                        </p>
+                        <button onclick="reviewWeakQuestion('${q.activityId}', ${q.questionIndex})" style="margin-top: var(--spacing-sm); padding: 6px 12px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: bold;">Review Now</button>
+                    </div>
+                `;
+            });
+            weakAreasContainer.innerHTML = html;
+        }
+
+        // Update overall progress display
+        function updateProgressDisplay(performanceData) {
+            updateActivityProgressList();
+        }
+
+        // Review weak question
+        function reviewWeakQuestion(activityId, questionIndex) {
+            console.log('Reviewing weak question from:', activityId, 'Question:', questionIndex);
+            window.currentDifficulty = 'medium';
+            startActivity(activityId);
+        }
+
+        // Set difficulty level
+        function setDifficulty(level) {
+            window.currentDifficulty = level;
+            const difficultyInfo = document.getElementById('difficultyInfo');
+            const difficultyNames = { 
+                'easy': '🟢 Easy Mode - Simpler questions',
+                'medium': '🟡 Medium Mode - Balanced difficulty',
+                'hard': '🔴 Hard Mode - Challenging questions'
+            };
+            difficultyInfo.textContent = difficultyNames[level] || 'Difficulty selected';
+            console.log('Difficulty set to:', level);
+        }
+
+        // Start an activity
+        function startActivity(activityId) {
+            console.log('Starting activity:', activityId);
+            
+            // Auto-set difficulty if not selected
+            if (!window.currentDifficulty) {
+                window.currentDifficulty = 'easy';
+                document.getElementById('difficultyInfo').textContent = '🟢 Easy Mode - Simpler questions';
+                console.log('Auto-set difficulty to: easy');
+            }
+            
+            // Activity configurations with difficulty levels
+            const activities = {
+                'counting-adventure': {
+                    name: 'Counting Adventure 🔢',
+                    easy: [
+                        { question: 'Count: 1 plus 1 equals how many?', expectedAnswer: ['2', 'two'], feedback: '2 items' },
+                        { question: 'How many apples? 2 plus 2 equals how many?', expectedAnswer: ['4', 'four'], feedback: '4 apples' },
+                        { question: 'How many oranges? 3 plus 1 equals how many?', expectedAnswer: ['4', 'four'], feedback: '4 oranges' }
+                    ],
+                    medium: [
+                        { question: 'How many apples are in a group of 3 apples plus 2 more apples?', expectedAnswer: ['5', 'five'], feedback: '5 apples' },
+                        { question: 'If you have 4 bananas and add 3 more, how many bananas do you have?', expectedAnswer: ['7', 'seven'], feedback: '7 bananas' },
+                        { question: 'Count: 2 plus 6 equals how many?', expectedAnswer: ['8', 'eight'], feedback: '8 items' }
+                    ],
+                    hard: [
+                        { question: 'How many items total? 5 apples plus 7 oranges equals how many fruits?', expectedAnswer: ['12', 'twelve'], feedback: '12 fruits' },
+                        { question: 'A basket has 8 red balls and 9 blue balls. How many balls in total?', expectedAnswer: ['17', 'seventeen'], feedback: '17 balls' },
+                        { question: 'You have 6 pencils and your friend gives you 8 more. How many pencils do you have now?', expectedAnswer: ['14', 'fourteen'], feedback: '14 pencils' }
+                    ]
+                },
+                'number-recognition': {
+                    name: 'Number Recognition 🎯',
+                    easy: [
+                        { question: 'What number comes after 2?', expectedAnswer: ['3', 'three'], feedback: 'The number 3' },
+                        { question: 'What number comes after 5?', expectedAnswer: ['6', 'six'], feedback: 'The number 6' },
+                        { question: 'What number comes after 8?', expectedAnswer: ['9', 'nine'], feedback: 'The number 9' }
+                    ],
+                    medium: [
+                        { question: 'What number comes after 7?', expectedAnswer: ['8', 'eight'], feedback: 'The number 8' },
+                        { question: 'What number comes before 5?', expectedAnswer: ['4', 'four'], feedback: 'The number 4' },
+                        { question: 'What number is between 9 and 11?', expectedAnswer: ['10', 'ten'], feedback: 'The number 10' }
+                    ],
+                    hard: [
+                        { question: 'What number is 5 more than 12?', expectedAnswer: ['17', 'seventeen'], feedback: 'The number 17' },
+                        { question: 'What number is 3 less than 20?', expectedAnswer: ['17', 'seventeen'], feedback: 'The number 17' },
+                        { question: 'What number is double of 9?', expectedAnswer: ['18', 'eighteen'], feedback: 'The number 18' }
+                    ]
+                },
+                'basic-math': {
+                    name: 'Basic Math ➕',
+                    easy: [
+                        { question: 'What is 1 plus 1?', expectedAnswer: ['2', 'two'], feedback: '1 plus 1 equals 2' },
+                        { question: 'What is 2 plus 1?', expectedAnswer: ['3', 'three'], feedback: '2 plus 1 equals 3' },
+                        { question: 'What is 3 plus 2?', expectedAnswer: ['5', 'five'], feedback: '3 plus 2 equals 5' }
+                    ],
+                    medium: [
+                        { question: 'What is 2 plus 3?', expectedAnswer: ['5', 'five'], feedback: '2 plus 3 equals 5' },
+                        { question: 'What is 4 plus 2?', expectedAnswer: ['6', 'six'], feedback: '4 plus 2 equals 6' },
+                        { question: 'What is 3 plus 3?', expectedAnswer: ['6', 'six'], feedback: '3 plus 3 equals 6' }
+                    ],
+                    hard: [
+                        { question: 'What is 12 plus 8?', expectedAnswer: ['20', 'twenty'], feedback: '12 plus 8 equals 20' },
+                        { question: 'What is 15 plus 7?', expectedAnswer: ['22', 'twenty two'], feedback: '15 plus 7 equals 22' },
+                        { question: 'What is 18 plus 6?', expectedAnswer: ['24', 'twenty four'], feedback: '18 plus 6 equals 24' }
+                    ]
+                },
+                'alphabet-learning': {
+                    name: 'Alphabet Learning 🔤',
+                    easy: [
+                        { question: 'What is the first letter of the alphabet?', expectedAnswer: ['a', 'ay', 'aay'], feedback: 'The letter A' },
+                        { question: 'What is the second letter of the alphabet?', expectedAnswer: ['b', 'bee', 'bay'], feedback: 'The letter B' },
+                        { question: 'What is the third letter of the alphabet?', expectedAnswer: ['c', 'see', 'cee'], feedback: 'The letter C' }
+                    ],
+                    medium: [
+                        { question: 'What is the first letter of the alphabet?', expectedAnswer: ['a', 'ay', 'aay'], feedback: 'The letter A' },
+                        { question: 'What is the second letter of the alphabet?', expectedAnswer: ['b', 'bee', 'bay'], feedback: 'The letter B' },
+                        { question: 'What is the last letter of the alphabet?', expectedAnswer: ['z', 'zee', 'zed'], feedback: 'The letter Z' }
+                    ],
+                    hard: [
+                        { question: 'What letter comes after M in the alphabet?', expectedAnswer: ['n', 'en'], feedback: 'The letter N' },
+                        { question: 'What letter comes before T in the alphabet?', expectedAnswer: ['s', 'ess'], feedback: 'The letter S' },
+                        { question: 'What is the middle letter of the alphabet?', expectedAnswer: ['m', 'em'], feedback: 'The letter M' }
+                    ]
+                },
+                'colors-shapes': {
+                    name: 'Colors & Shapes 🎨',
+                    easy: [
+                        { question: 'What color are leaves and grass?', expectedAnswer: ['green'], feedback: 'Green' },
+                        { question: 'What color is the sun?', expectedAnswer: ['yellow'], feedback: 'Yellow' },
+                        { question: 'What color is snow and milk?', expectedAnswer: ['white'], feedback: 'White' }
+                    ],
+                    medium: [
+                        { question: 'What color is the sky on a clear sunny day?', expectedAnswer: ['blue', 'sky blue'], feedback: 'Blue' },
+                        { question: 'What color are grass and trees?', expectedAnswer: ['green'], feedback: 'Green' },
+                        { question: 'What color is fire and tomatoes?', expectedAnswer: ['red'], feedback: 'Red' }
+                    ],
+                    hard: [
+                        { question: 'What color do you get when you mix red and blue together?', expectedAnswer: ['purple', 'violet'], feedback: 'Purple' },
+                        { question: 'What color do you get when you mix red and yellow together?', expectedAnswer: ['orange'], feedback: 'Orange' },
+                        { question: 'What color do you get when you mix blue and yellow together?', expectedAnswer: ['green'], feedback: 'Green' }
+                    ]
+                },
+                'phonics-sounds': {
+                    name: 'Phonics Sounds 🔊',
+                    easy: [
+                        { question: 'What sound does the letter M make?', expectedAnswer: ['m', 'muh', 'em'], feedback: 'The M sound' },
+                        { question: 'What sound does the letter T make?', expectedAnswer: ['t', 'tuh'], feedback: 'The T sound' },
+                        { question: 'What sound does the letter S make?', expectedAnswer: ['s', 'sss'], feedback: 'The S sound' }
+                    ],
+                    medium: [
+                        { question: 'What sound does the letter B make?', expectedAnswer: ['b', 'bee', 'buh'], feedback: 'The B sound' },
+                        { question: 'What sound does the letter C make?', expectedAnswer: ['c', 'see', 'cuh'], feedback: 'The C sound' },
+                        { question: 'What sound does the letter A make?', expectedAnswer: ['a', 'ay', 'aah'], feedback: 'The A sound' }
+                    ],
+                    hard: [
+                        { question: 'What sound does the letter X make?', expectedAnswer: ['x', 'ex', 'z'], feedback: 'The X sound' },
+                        { question: 'What sound does the letter Q make?', expectedAnswer: ['q', 'cue'], feedback: 'The Q sound' },
+                        { question: 'What sound does the letter Z make?', expectedAnswer: ['z', 'zee', 'zed'], feedback: 'The Z sound' }
+                    ]
+                },
+                'time-telling': {
+                    name: 'Time Telling 🕐',
+                    easy: [
+                        { question: 'How many hours are in a day?', expectedAnswer: ['24', 'twenty four'], feedback: '24 hours' },
+                        { question: 'How many days are in a week?', expectedAnswer: ['7', 'seven'], feedback: '7 days' },
+                        { question: 'How many minutes in 1 hour?', expectedAnswer: ['60', 'sixty'], feedback: '60 minutes' }
+                    ],
+                    medium: [
+                        { question: 'How many hours are in a day?', expectedAnswer: ['24', 'twenty four'], feedback: '24 hours' },
+                        { question: 'How many minutes are in an hour?', expectedAnswer: ['60', 'sixty'], feedback: '60 minutes' },
+                        { question: 'How many seconds are in a minute?', expectedAnswer: ['60', 'sixty'], feedback: '60 seconds' }
+                    ],
+                    hard: [
+                        { question: 'How many minutes are in 2 hours?', expectedAnswer: ['120', 'one hundred twenty'], feedback: '120 minutes' },
+                        { question: 'How many seconds are in 5 minutes?', expectedAnswer: ['300', 'three hundred'], feedback: '300 seconds' },
+                        { question: 'How many hours are in 2 days?', expectedAnswer: ['48', 'forty eight'], feedback: '48 hours' }
+                    ]
+                }
+            };
+
+            const activityData = activities[activityId] || {
+                name: 'Activity',
+                easy: [{ question: 'Easy question?', expectedAnswer: [], feedback: 'Good job!' }],
+                medium: [{ question: 'Medium question?', expectedAnswer: [], feedback: 'Good job!' }],
+                hard: [{ question: 'Hard question?', expectedAnswer: [], feedback: 'Good job!' }]
+            };
+
+            window.currentActivityId = activityId;
+            window.currentActivityData = activityData;
+            window.currentQuestionIndex = 0;
+            
+            loadQuestion(0);
+        }
+
+        // Load a specific question
+        // Load a specific question
+        function loadQuestion(questionIndex) {
+            const difficulty = window.currentDifficulty || 'medium';
+            const questions = window.currentActivityData[difficulty];
+            
+            if (questionIndex >= questions.length) {
+                showActivityCompletion();
+                return;
+            }
+
+            window.currentQuestionIndex = questionIndex;
+            window.questionStartTime = Date.now(); // Track when question loads for response time calculation
+            const question = questions[questionIndex];
+            window.currentActivityConfig = question;
+
+            const activityName = window.currentActivityData.name;
+            const questionCount = questions.length;
+            const currentNum = questionIndex + 1;
+            const progressPercent = (currentNum / questionCount) * 100;
+            const difficultyLabel = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+            const html = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+                    <div style="background: white; border-radius: 20px; padding: 40px; max-width: 600px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h1 style="color: #667eea; margin: 0; font-size: 1.3em;">${activityName}</h1>
+                            <div style="background: #667eea; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.9em; font-weight: bold;">${currentNum}/${questionCount}</div>
+                        </div>
+                        
+                        <div style="width: 100%; background: #e0e0e0; height: 6px; border-radius: 3px; margin-bottom: 20px; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 100%; width: ${progressPercent}%; transition: width 0.3s ease;"></div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <span style="display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; ${difficulty === 'easy' ? 'background: #4CAF50; color: white;' : difficulty === 'hard' ? 'background: #f44336; color: white;' : 'background: #FF9800; color: white;'}">
+                                ${difficulty === 'easy' ? '🟢 Easy' : difficulty === 'hard' ? '🔴 Hard' : '🟡 Medium'}
+                            </span>
+                        </div>
+                        
+                        <p style="color: #666; font-size: 1.1em; margin: 20px 0;">🎤 Voice-Enabled Learning Activity</p>
+                        
+                        <div style="background: #f5f5f5; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: left;">
+                            <p style="color: #333; font-size: 1em; line-height: 1.6;">
+                                <strong>Question:</strong><br>
+                                ${question.question}
+                            </p>
+                        </div>
+
+                        <div style="margin: 20px 0;">
+                            <button onclick="speakQuestion()" style="width: 100%; padding: 12px; background: #2196F3; color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; margin-bottom: 10px;">🔊 Listen Again</button>
+                            <button onclick="recordVoiceAnswer()" style="width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; margin-bottom: 10px;">🎤 Record Answer</button>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                <button onclick="skipQuestion()" style="padding: 12px; background: #FFC107; color: #333; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer;">⏭️ Skip Question</button>
+                                <button onclick="closeActivity()" style="padding: 12px; background: #f44336; color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer;">❌ Exit Activity</button>
+                            </div>
+                        </div>
+
+                        <div id="voiceStatus" style="margin-top: 20px; color: #666; font-size: 0.9em;">
+                            <p>Ready to listen. Click buttons above to proceed.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remove existing activity overlay if present
+            const existingOverlay = document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]');
+            if (existingOverlay) {
+                existingOverlay.remove();
+            }
+
+            document.body.insertAdjacentHTML('beforeend', html);
+            
+            // Add event listeners to modal buttons with proper timing
+            setTimeout(function() {
+                const listenBtn = document.querySelector('button[onclick="speakQuestion()"]');
+                const recordBtn = document.querySelector('button[onclick="recordVoiceAnswer()"]');
+                const skipBtn = document.querySelector('button[onclick="skipQuestion()"]');
+                const exitBtn = document.querySelector('button[onclick="closeActivity()"]');
+                
+                // Ensure buttons are clickable
+                [listenBtn, recordBtn, skipBtn, exitBtn].forEach(btn => {
+                    if (btn) {
+                        btn.style.pointerEvents = 'auto';
+                        btn.style.cursor = 'pointer';
+                        btn.style.zIndex = '10000';
+                    }
+                });
+                
+                console.log('Activity modal buttons ready');
+                speakQuestion();
+            }, 50);
+        }
+
+        // Show activity completion screen
+        function showActivityCompletion() {
+            // TRIGGER CELEBRATION ANIMATIONS
+            triggerCelebration();
+            triggerLevelUp();
+            
+            const activityName = window.currentActivityData.name;
+            const currentDifficulty = window.currentDifficulty || 'medium';
+            const difficultyLevels = ['easy', 'medium', 'hard'];
+            const currentLevelIndex = difficultyLevels.indexOf(currentDifficulty);
+            const hasNextLevel = currentLevelIndex < difficultyLevels.length - 1;
+            const nextDifficulty = hasNextLevel ? difficultyLevels[currentLevelIndex + 1] : null;
+            
+            // Determine difficulty badge color
+            let difficultyColor = '#FF9800';
+            let difficultyEmoji = '🟡';
+            if (currentDifficulty === 'easy') {
+                difficultyColor = '#4CAF50';
+                difficultyEmoji = '🟢';
+            } else if (currentDifficulty === 'hard') {
+                difficultyColor = '#f44336';
+                difficultyEmoji = '🔴';
+            }
+            
+            const nextDifficultyText = nextDifficulty ? `${nextDifficulty.charAt(0).toUpperCase() + nextDifficulty.slice(1)}` : 'Expert';
+            
+            const html = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+                    <div style="background: white; border-radius: 20px; padding: 40px; max-width: 600px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center;">
+                        <h1 style="color: #4CAF50; margin-top: 0; font-size: 2.5em;">🎉</h1>
+                        <h2 style="color: #667eea; margin-bottom: 10px;">Activity Complete!</h2>
+                        <p style="color: #666; font-size: 1.1em; line-height: 1.6;">
+                            Excellent work! You completed all questions in <strong>${activityName}</strong><br>
+                            <span style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: ${difficultyColor}; color: white; border-radius: 20px; font-weight: bold; font-size: 0.9em;">${difficultyEmoji} ${currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1)} Level - Perfect Score! 100%</span>
+                        </p>
+                        
+                        ${hasNextLevel ? `
+                        <div style="margin-top: 20px; padding: 20px; background: #f0f4ff; border-radius: 12px; border: 2px solid #667eea;">
+                            <p style="color: #667eea; font-weight: bold; margin-top: 0; margin-bottom: 10px;">🚀 You're Ready for the Next Level!</p>
+                            <p style="color: #666; font-size: 0.95em; margin: 10px 0;">Your perfect score unlocked the <strong>${nextDifficultyText}</strong> difficulty! Continue to challenge yourself?</p>
+                            <button onclick="progressToNextDifficulty('${window.currentActivityId}', '${nextDifficulty}')" style="width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 0.95em; font-weight: bold; cursor: pointer; margin-bottom: 10px;">📈 Try ${nextDifficultyText} Level Now</button>
+                            <button onclick="closeActivity()" style="width: 100%; padding: 12px; background: #f5f5f5; color: #333; border: none; border-radius: 8px; font-size: 0.95em; font-weight: bold; cursor: pointer;">🏠 Return to Dashboard</button>
+                        </div>
+                        ` : `
+                        <div style="margin-top: 20px; padding: 20px; background: #ffe0e0; border-radius: 12px; border: 2px solid #f44336;">
+                            <p style="color: #f44336; font-weight: bold; margin-top: 0;">🌟 Expert Level Mastered! 🌟</p>
+                            <p style="color: #666; font-size: 0.95em;">You've conquered the hardest difficulty! You're a true learning expert!</p>
+                            <button onclick="closeActivity()" style="width: 100%; padding: 15px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; margin-top: 15px;">🏠 Return to Dashboard</button>
+                        </div>
+                        `}
+                    </div>
+                </div>
+            `;
+
+            const existingOverlay = document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]');
+            if (existingOverlay) {
+                existingOverlay.remove();
+            }
+
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        // Track performance for adaptive learning
+        function trackPerformance(activityId, questionIndex, isCorrect, responseTime) {
+            if (!window.performanceData) return;
+            
+            const perf = window.performanceData;
+            
+            // Update total stats
+            perf.totalAttempts = (perf.totalAttempts || 0) + 1;
+            if (isCorrect) {
+                perf.totalCorrect = (perf.totalCorrect || 0) + 1;
+            }
+            
+            // Initialize activity stats if needed
+            if (!perf.activityStats[activityId]) {
+                perf.activityStats[activityId] = {
+                    attempts: 0,
+                    correct: 0,
+                    avgResponseTime: 0,
+                    questionPerformance: {},
+                    lastAttempt: null
+                };
+            }
+            
+            const activityStats = perf.activityStats[activityId];
+            activityStats.attempts += 1;
+            activityStats.lastAttempt = new Date().toISOString();
+            
+            if (isCorrect) {
+                activityStats.correct += 1;
+            }
+            
+            // Track individual question performance
+            const qKey = 'q' + questionIndex;
+            if (!activityStats.questionPerformance[qKey]) {
+                activityStats.questionPerformance[qKey] = {
+                    attempts: 0,
+                    correct: 0,
+                    avgTime: 0,
+                    difficulty: window.currentDifficulty
+                };
+            }
+            
+            const qPerf = activityStats.questionPerformance[qKey];
+            qPerf.attempts += 1;
+            
+            // Update average response time
+            qPerf.avgTime = ((qPerf.avgTime * (qPerf.attempts - 1)) + responseTime) / qPerf.attempts;
+            
+            if (isCorrect) {
+                qPerf.correct += 1;
+            } else {
+                // Add to difficult questions for spaced repetition
+                if (!perf.difficultQuestions.includes(activityId + '_' + questionIndex)) {
+                    perf.difficultQuestions.push({
+                        id: activityId + '_' + questionIndex,
+                        activityId: activityId,
+                        questionIndex: questionIndex,
+                        dateAdded: new Date().toISOString(),
+                        attempts: 1,
+                        correctAttempts: 0
+                    });
+                }
+            }
+            
+            // Update overall activity accuracy
+            activityStats.accuracy = Math.round((activityStats.correct / activityStats.attempts) * 100);
+            
+            // Save to localStorage
+            localStorage.setItem('performanceData', JSON.stringify(perf));
+            console.log('Performance tracked:', { activityId, questionIndex, isCorrect, responseTime });
+        }
+
+        // Check and auto-adjust difficulty based on performance
+        function checkAndAdjustDifficulty() {
+            if (!window.performanceData) return false;
+            
+            const perf = window.performanceData;
+            const currentActivity = window.currentActivityId;
+            const stats = perf.activityStats[currentActivity];
+            
+            if (!stats || stats.attempts < 3) return false;
+            
+            const accuracy = (stats.correct / stats.attempts) * 100;
+            const difficulty = window.currentDifficulty;
+            
+            // Auto-suggest difficulty change based on performance
+            if (accuracy >= 90 && difficulty !== 'hard') {
+                // Performing well, suggest harder difficulty
+                console.log('🚀 Excellent performance! Consider trying harder difficulty.');
+                return true;
+            } else if (accuracy < 50 && difficulty !== 'easy') {
+                // Struggling, suggest easier difficulty
+                console.log('💡 Struggling a bit? Try easier difficulty to build confidence.');
+                return false;
+            }
+            
+            return null;
+        }
+
+        // Get difficult questions for spaced repetition
+        function getDifficultQuestions() {
+            if (!window.performanceData) return [];
+            
+            const now = new Date();
+            const difficultQuestions = window.performanceData.difficultQuestions || [];
+            
+            // Filter by spaced repetition schedule (review after 1 day, 3 days, 7 days)
+            return difficultQuestions.filter(q => {
+                const dateAdded = new Date(q.dateAdded);
+                const daysSince = (now - dateAdded) / (1000 * 60 * 60 * 24);
+                
+                // Suggest review based on attempts
+                if (q.attempts === 1 && daysSince > 1) return true;     // After 1 day
+                if (q.attempts === 2 && daysSince > 3) return true;     // After 3 days
+                if (q.attempts === 3 && daysSince > 7) return true;     // After 7 days
+                
+                return false;
+            });
+        }
+
+        // Skip to next question
+        function skipQuestion() {
+            const nextQuestionIndex = window.currentQuestionIndex + 1;
+            const difficulty = window.currentDifficulty || 'medium';
+            const totalQuestions = window.currentActivityData[difficulty].length;
+            
+            const statusEl = document.getElementById('voiceStatus');
+            statusEl.innerHTML = '<p style="color: #FF9800; font-weight: bold;">⏭️ Question Skipped</p>';
+            
+            // Show skipped feedback and move to next question
+            speakFeedback('Question skipped. Let\'s move to the next one!', 0.9);
+            
+            setTimeout(() => {
+                if (nextQuestionIndex >= totalQuestions) {
+                    showActivityCompletion();
+                } else {
+                    loadQuestion(nextQuestionIndex);
+                }
+            }, 2000);
+        }
+
+        // Progress to next difficulty level
+        function progressToNextDifficulty(activityId, nextDifficulty) {
+            window.currentDifficulty = nextDifficulty;
+            window.currentQuestionIndex = 0;
+            
+            // Update difficulty info display
+            const difficultyInfo = document.getElementById('difficultyInfo');
+            if (difficultyInfo) {
+                const difficultyNames = { 
+                    'easy': '🟢 Easy Mode - Simpler questions',
+                    'medium': '🟡 Medium Mode - Balanced difficulty',
+                    'hard': '🔴 Hard Mode - Challenging questions'
+                };
+                difficultyInfo.textContent = difficultyNames[nextDifficulty] || 'Difficulty selected';
+            }
+            
+            // Reload the activity with new difficulty
+            loadQuestion(0);
+            
+            console.log('Progressed to', nextDifficulty, 'difficulty');
+        }
+
+        // Speak feedback messages
+        function speakFeedback(text, rate = 0.9) {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = rate;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                speechSynthesis.speak(utterance);
+                console.log('Feedback:', text);
+            }
+        }
+
+        // Speak the question
+        function speakQuestion() {
+            const text = window.currentActivityConfig?.question || "What is 2 plus 3? Please say your answer.";
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                speechSynthesis.speak(utterance);
+                console.log('Speaking:', text);
+            }
+        }
+
+        // Record voice answer
+        function recordVoiceAnswer() {
+            console.log('Recording voice answer...');
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                alert('Speech recognition not supported in your browser. Please use Chrome, Edge, or Firefox.');
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 3; // Get multiple alternatives for confidence
+            recognition.continuous = false;
+
+            const statusEl = document.getElementById('voiceStatus');
+            const btn = event.target;
+            btn.disabled = true;
+            
+            // Initialize audio recording for replay feature
+            let mediaRecorder;
+            let audioChunks = [];
+            
+            // Start background noise detection
+            let audioLevel = 0;
+            let isBackgroundNoisyDetected = false;
+            
+            recognition.onstart = () => {
+                statusEl.innerHTML = '<p style="color: #2196F3; font-weight: bold;">🎤 Listening... Speak your answer</p>';
+                console.log('Listening started');
+                
+                // Initialize audio recording for replay
+                navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    mediaRecorder.start();
+                }).catch(err => {
+                    console.log('Microphone access not available for replay:', err);
+                });
+            };
+
+            recognition.onresult = (event) => {
+                console.log('Recognition result:', event);
+                let finalTranscript = '';
+                let interimTranscript = '';
+                let confidence = 0;
+                let confidencePercentage = 0;
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    const confidence_score = event.results[i][0].confidence;
+                    
+                    console.log(`Result ${i}:`, transcript, '| Confidence:', confidence_score, '| Is final:', event.results[i].isFinal);
+
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                        confidence = confidence_score;
+                        confidencePercentage = Math.round(confidence_score * 100);
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                if (interimTranscript) {
+                    statusEl.innerHTML = `<p style="color: #666;"><em>Hearing: "${interimTranscript}"</em></p>`;
+                }
+
+                if (finalTranscript) {
+                    console.log('Final transcript:', finalTranscript, 'Confidence:', confidencePercentage);
+                    
+                    // Stop audio recording
+                    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                        mediaRecorder.stop();
+                    }
+                    
+                    // Display transcription with confidence score
+                    const confidenceColor = confidencePercentage >= 80 ? '#4CAF50' : confidencePercentage >= 60 ? '#FF9800' : '#f44336';
+                    statusEl.innerHTML = `<p style="color: #4CAF50; font-weight: bold;">✓ You said: "${finalTranscript.trim()}"</p>
+                                          <p style="color: ${confidenceColor}; font-size: 0.95em; margin-top: 5px;">🎯 Confidence: <strong>${confidencePercentage}%</strong></p>`;
+                    
+                    // Track response time
+                    const responseTime = Date.now() - (window.questionStartTime || Date.now());
+                    
+                    // Get expected answers and enhance with natural language variations
+                    const answer = finalTranscript.toLowerCase().trim();
+                    const expectedAnswers = window.currentActivityConfig?.expectedAnswer || [];
+                    const feedback = window.currentActivityConfig?.feedback || 'Good job!';
+                    const activityName = window.currentActivityConfig?.name || 'activity';
+                    
+                    // IMPROVED: Natural Language Matching with variations
+                    const isCorrect = expectedAnswers.some(exp => {
+                        const expLower = exp.toLowerCase();
+                        // Direct match
+                        if (answer.includes(expLower) || expLower.includes(answer.split(' ')[0])) return true;
+                        // Word-for-word variations ("five" = "5")
+                        const variations = getAnswerVariations(expLower);
+                        return variations.some(v => answer.includes(v) || answer === v);
+                    });
+                    
+                    // IMPROVED: Pronunciation quality check
+                    const pronunciationScore = calculatePronunciationScore(confidencePercentage, responseTime);
+                    
+                    // Update performance tracking
+                    trackPerformance(window.currentActivityId, window.currentQuestionIndex, isCorrect, responseTime);
+                    
+                    // Check if difficulty should auto-adjust based on performance
+                    const shouldAdjustDifficulty = checkAndAdjustDifficulty();
+                    
+                    if (isCorrect) {
+                        let feedbackHTML = `<p style="color: #4CAF50; margin-top: 10px;">✓ Correct! The answer is ${feedback}</p>`;
+                        
+                        // Add pronunciation feedback if good
+                        if (pronunciationScore >= 80) {
+                            feedbackHTML += `<p style="color: #4CAF50; font-size: 0.9em; margin-top: 5px;">🎤 Excellent pronunciation!</p>`;
+                        } else if (pronunciationScore >= 60) {
+                            feedbackHTML += `<p style="color: #FF9800; font-size: 0.9em; margin-top: 5px;">🎤 Good effort! (Pronunciation: ${pronunciationScore}%)</p>`;
+                        }
+                        
+                        statusEl.innerHTML += feedbackHTML;
+                        
+                        const correctFeedback = [
+                            `Excellent! That is correct! You got it right!`,
+                            `Fantastic! The answer is ${feedback}. Great job!`,
+                            `Perfect! You nailed it! The answer is ${feedback}!`,
+                            `Amazing! You're doing great! That's correct!`
+                        ];
+                        const randomCorrect = correctFeedback[Math.floor(Math.random() * correctFeedback.length)];
+                        speakFeedback(randomCorrect, 0.9);
+                        
+                        // TRIGGER SUCCESS ANIMATIONS
+                        triggerSuccess();
+                        
+                        // ===== GAMIFICATION REWARDS =====
+                        const difficulty = window.currentDifficulty || 'medium';
+                        
+                        // Update combo and get multiplier
+                        updateCombo(true);
+                        const comboMultiplier = window.rewardsData.comboMultiplier;
+                        
+                        // Award XP with combo bonus
+                        const xpAwarded = awardXP(difficulty, comboMultiplier);
+                        showXPPopup(xpAwarded, comboMultiplier);
+                        
+                        // Update streak
+                        updateStreak(true);
+                        
+                        // Track consecutive answers for milestones
+                        trackConsecutiveAnswers(true);
+                        
+                        // Track answer speed for badges
+                        trackAnswerSpeed(responseTime);
+                        
+                        // Check for achievement badges
+                        checkAchievementBadges();
+                        
+                        // Update rewards display
+                        updateRewardsDisplay();
+                        
+                        // Calculate and animate accuracy
+                        const stats = window.performanceData?.activities?.[window.currentActivityId] || { correct: 1, attempts: 1 };
+                        const currentAccuracy = Math.round((stats.correct / stats.attempts) * 100);
+                        const accuracyBar = document.getElementById('accuracyBar');
+                        if (accuracyBar) {
+                            animateProgressBar(accuracyBar, currentAccuracy);
+                        }
+                        
+                        // Auto-advance to next question after 2.5 seconds of celebration
+                        btn.disabled = true; // Disable record button during transition
+                        setTimeout(() => {
+                            const nextQuestionIndex = window.currentQuestionIndex + 1;
+                            const difficulty = window.currentDifficulty || 'medium';
+                            const totalQuestions = window.currentActivityData?.[difficulty]?.length || 0;
+                            
+                            // Show loading message
+                            statusEl.innerHTML = `<p style="color: #667eea; font-weight: bold;">⏭️ Loading next question...</p>`;
+                            
+                            // Auto-load next question
+                            setTimeout(() => {
+                                loadQuestion(nextQuestionIndex);
+                            }, 500);
+                        }, 2500);
+                    } else {
+                        let feedbackHTML = `<p style="color: #f44336; margin-top: 10px;">❌ Not quite. The correct answer is ${feedback}</p>`;
+                        
+                        // Add pronunciation feedback even on wrong answer
+                        if (confidencePercentage < 50) {
+                            feedbackHTML += `<p style="color: #FF9800; font-size: 0.9em; margin-top: 5px;">💡 Try speaking clearer - confidence was low (${confidencePercentage}%)</p>`;
+                        }
+                        
+                        statusEl.innerHTML += feedbackHTML;
+                        
+                        const incorrectFeedback = [
+                            `Good try! The correct answer is ${feedback}. Let's try again!`,
+                            `Nice effort! The answer is actually ${feedback}. Try once more!`,
+                            `Oops! That's not quite right. The correct answer is ${feedback}. You can do it!`,
+                            `Good attempt! Remember, the answer is ${feedback}. Let's practice more!`
+                        ];
+                        const randomIncorrect = incorrectFeedback[Math.floor(Math.random() * incorrectFeedback.length)];
+                        speakFeedback(randomIncorrect, 0.85);
+                        
+                        // TRIGGER FAILURE ANIMATIONS
+                        triggerFailure();
+                        
+                        // ===== GAMIFICATION REWARDS - Handle failure =====
+                        updateCombo(false); // Reset combo on wrong answer
+                        trackConsecutiveAnswers(false); // Reset consecutive count
+                        window.speedyAnswers = 0; // Reset speed counter
+                        updateRewardsDisplay();
+                        
+                        // Allow user to try again - button stays enabled
+                    }
+                    
+                    // Add audio replay button if audio was captured
+                    if (audioChunks.length > 0) {
+                        setTimeout(() => {
+                            addAudioReplayButton(audioChunks, statusEl);
+                        }, 500);
+                    }
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Recognition error:', event.error);
+                
+                // Better error handling with suggestions
+                let errorMessage = `❌ Error: ${event.error}`;
+                let suggestion = '';
+                
+                if (event.error === 'no-speech') {
+                    errorMessage = '❌ No speech detected';
+                    suggestion = '<small>Make sure your microphone is working and try speaking clearly.</small>';
+                } else if (event.error === 'network') {
+                    errorMessage = '❌ Network error';
+                    suggestion = '<small>Check your internet connection and try again.</small>';
+                } else if (event.error === 'not-allowed') {
+                    errorMessage = '❌ Microphone access denied';
+                    suggestion = '<small>Please allow microphone access in your browser settings.</small>';
+                } else {
+                    suggestion = '<small>Make sure microphone is enabled.</small>';
+                }
+                
+                statusEl.innerHTML = `<p style="color: #f44336; font-weight: bold;">${errorMessage}</p>${suggestion}`;
+                btn.disabled = false;
+                
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+            };
+
+            recognition.onend = () => {
+                console.log('Listening ended');
+                btn.disabled = false;
+                
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+            };
+
+            try {
+                recognition.start();
+                console.log('Recognition started successfully');
+            } catch (e) {
+                console.error('Error starting recognition:', e);
+                statusEl.innerHTML = `<p style="color: #f44336;">Error: ${e.message}</p>`;
+                btn.disabled = false;
+            }
+        }
+
+        // ========== VOICE RECOGNITION IMPROVEMENTS ==========
+        
+        // Feature 1: Natural Language - Accept variations (five, 5, cinq, etc.)
+        function getAnswerVariations(answer) {
+            const numberVariations = {
+                'zero': ['0', 'zero'],
+                'one': ['1', 'one'],
+                'two': ['2', 'two'],
+                'three': ['3', 'three'],
+                'four': ['4', 'four'],
+                'five': ['5', 'five'],
+                'six': ['6', 'six'],
+                'seven': ['7', 'seven'],
+                'eight': ['8', 'eight'],
+                'nine': ['9', 'nine'],
+                'ten': ['10', 'ten'],
+                'yes': ['yes', 'yep', 'yeah', 'sure'],
+                'no': ['no', 'nope', 'nah'],
+                'hello': ['hello', 'hi', 'hey'],
+                'goodbye': ['goodbye', 'bye', 'see you'],
+                'thank you': ['thank you', 'thanks', 'thankyou'],
+                'please': ['please', 'pls']
+            };
+            
+            return numberVariations[answer] || [answer];
+        }
+
+        // Feature 2: Pronunciation Quality Check
+        function calculatePronunciationScore(confidence, responseTime) {
+            // Confidence is primary factor (0-100)
+            let score = confidence;
+            
+            // Response time factor (slower = better pronunciation typically)
+            // Optimal is 1-3 seconds
+            if (responseTime < 500) {
+                score -= 20; // Too fast, likely not pronounced clearly
+            } else if (responseTime > 5000) {
+                score -= 10; // Too slow, minor deduction
+            }
+            
+            // Ensure score is between 0-100
+            return Math.max(0, Math.min(100, score));
+        }
+
+        // Feature 3: Audio Replay - Create playback button
+        function addAudioReplayButton(audioChunks, statusEl) {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            // Create replay button
+            const replayBtn = document.createElement('button');
+            replayBtn.innerHTML = '🔊 Replay Your Answer';
+            replayBtn.style.cssText = `
+                padding: 10px 20px;
+                margin-top: 10px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 1em;
+                transition: all 0.3s ease;
+            `;
+            
+            replayBtn.onmouseover = () => {
+                replayBtn.style.transform = 'scale(1.05)';
+                replayBtn.style.boxShadow = '0 5px 15px rgba(102, 126, 234, 0.4)';
+            };
+            
+            replayBtn.onmouseout = () => {
+                replayBtn.style.transform = 'scale(1)';
+                replayBtn.style.boxShadow = 'none';
+            };
+            
+            replayBtn.onclick = () => {
+                const audio = new Audio(audioUrl);
+                audio.play();
+            };
+            
+            statusEl.appendChild(replayBtn);
+        }
+
+        // Feature 4 & 5: Background Noise Filter and Enhanced Error Handling
+        // These are integrated into the recognition.onerror and recognition.onstart handlers above
+        // Proper error messages and microphone suggestions are provided
+
+                        updateRewardsDisplay();
+                        
+                        // Calculate and animate accuracy
+                        const stats = window.performanceData?.activities?.[window.currentActivityId] || { correct: 1, attempts: 1 };
+                        const currentAccuracy = Math.round((stats.correct / stats.attempts) * 100);
+                        const accuracyBar = document.getElementById('accuracyBar');
+                        if (accuracyBar) {
+                            animateProgressBar(accuracyBar, currentAccuracy);
+                        }
+                        
+                        // Auto-advance to next question after 2.5 seconds of celebration
+                        btn.disabled = true; // Disable record button during transition
+                        setTimeout(() => {
+                            const nextQuestionIndex = window.currentQuestionIndex + 1;
+                            const difficulty = window.currentDifficulty || 'medium';
+                            const totalQuestions = window.currentActivityData?.[difficulty]?.length || 0;
+                            
+                            // Show loading message
+                            statusEl.innerHTML = `<p style="color: #667eea; font-weight: bold;">⏭️ Loading next question...</p>`;
+                            
+                            // Auto-load next question
+                            setTimeout(() => {
+                                loadQuestion(nextQuestionIndex);
+                            }, 500);
+                        }, 2500);
+                    } else {
+                        statusEl.innerHTML += `<p style="color: #f44336; margin-top: 10px;">❌ Not quite. The correct answer is ${feedback}</p>`;
+                        const incorrectFeedback = [
+                            `Good try! The correct answer is ${feedback}. Let's try again!`,
+                            `Nice effort! The answer is actually ${feedback}. Try once more!`,
+                            `Oops! That's not quite right. The correct answer is ${feedback}. You can do it!`,
+                            `Good attempt! Remember, the answer is ${feedback}. Let's practice more!`
+                        ];
+                        const randomIncorrect = incorrectFeedback[Math.floor(Math.random() * incorrectFeedback.length)];
+                        speakFeedback(randomIncorrect, 0.85);
+                        
+                        // TRIGGER FAILURE ANIMATIONS
+                        triggerFailure();
+                        
+                        // ===== GAMIFICATION REWARDS - Handle failure =====
+                        updateCombo(false); // Reset combo on wrong answer
+                        trackConsecutiveAnswers(false); // Reset consecutive count
+                        window.speedyAnswers = 0; // Reset speed counter
+                        updateRewardsDisplay();
+                        
+                        // Allow user to try again - button stays enabled
+                    }
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Recognition error:', event.error);
+                statusEl.innerHTML = `<p style="color: #f44336; font-weight: bold;">❌ Error: ${event.error}</p><small>Make sure microphone is enabled.</small>`;
+                btn.disabled = false;
+            };
+
+            recognition.onend = () => {
+                console.log('Listening ended');
+                btn.disabled = false;
+            };
+
+            try {
+                recognition.start();
+                console.log('Recognition started successfully');
+            } catch (e) {
+                console.error('Error starting recognition:', e);
+                statusEl.innerHTML = `<p style="color: #f44336;">Error: ${e.message}</p>`;
+                btn.disabled = false;
+            }
+        }
+
+        // Close activity
+        function closeActivity() {
+            const overlay = document.querySelector('div[style*="position: fixed"]');
+            if (overlay && overlay.style.background.includes('gradient')) {
+                overlay.remove();
+            }
+            window.currentActivity = null;
+        }
+
+        // Initialize on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                init();
+                setupDifficultyButtonHandlers();
+            });
+        } else {
+            init();
+            setupDifficultyButtonHandlers();
+        }
+        
+        // Manually setup difficulty button handlers
+        function setupDifficultyButtonHandlers() {
+            var buttons = document.querySelectorAll('button[onclick*="setDifficulty"]');
+            console.log('Found ' + buttons.length + ' difficulty buttons');
+            
+            buttons.forEach(function(btn) {
+                // Force the button to be clickable
+                btn.style.pointerEvents = 'auto';
+                btn.style.cursor = 'pointer';
+                btn.style.zIndex = '10000';
+                
+                // Also try adding direct onclick handler
+                if (btn.textContent.includes('Easy')) {
+                    btn.onclick = function(e) {
+                        e.stopPropagation();
+                        console.log('Easy button clicked directly');
+                        setDifficulty('easy');
+                        return false;
+                    };
+                } else if (btn.textContent.includes('Medium')) {
+                    btn.onclick = function(e) {
+                        e.stopPropagation();
+                        console.log('Medium button clicked directly');
+                        setDifficulty('medium');
+                        return false;
+                    };
+                } else if (btn.textContent.includes('Hard')) {
+                    btn.onclick = function(e) {
+                        e.stopPropagation();
+                        console.log('Hard button clicked directly');
+                        setDifficulty('hard');
+                        return false;
+                    };
+                }
+            });
+        }
+
+        // ==================== GAMIFICATION REWARDS SYSTEM ====================
+        
+        // Initialize rewards system
+        function initializeRewardsSystem() {
+            if (!window.rewardsData) {
+                window.rewardsData = {
+                    totalXP: localStorage.getItem('totalXP') ? parseInt(localStorage.getItem('totalXP')) : 0,
+                    currentStreak: localStorage.getItem('currentStreak') ? parseInt(localStorage.getItem('currentStreak')) : 0,
+                    maxStreak: localStorage.getItem('maxStreak') ? parseInt(localStorage.getItem('maxStreak')) : 0,
+                    comboMultiplier: 1,
+                    consecutiveCorrect: 0,
+                    badges: JSON.parse(localStorage.getItem('badges')) || {},
+                    achievements: JSON.parse(localStorage.getItem('achievements')) || [],
+                    lastAnswerTime: null
+                };
+            }
+        }
+
+        // Award XP based on difficulty and combo multiplier
+        function awardXP(difficulty, comboMultiplier = 1) {
+            const baseXP = {
+                easy: 10,
+                medium: 25,
+                hard: 50
+            };
+            
+            const xpReward = baseXP[difficulty] || 10;
+            const bonusXP = Math.floor(xpReward * ((comboMultiplier - 1) * 0.5)); // 0.5x bonus per combo level
+            const totalXP = xpReward + bonusXP;
+            
+            window.rewardsData.totalXP += totalXP;
+            localStorage.setItem('totalXP', window.rewardsData.totalXP);
+            
+            return totalXP;
+        }
+
+        // Update combo multiplier on consecutive correct answers
+        function updateCombo(isCorrect) {
+            if (isCorrect) {
+                window.rewardsData.consecutiveCorrect++;
+                window.rewardsData.comboMultiplier = 1 + Math.floor(window.rewardsData.consecutiveCorrect / 3) * 0.2; // +0.2x every 3 correct
+                
+                // Show combo notification when reaching milestones
+                if (window.rewardsData.consecutiveCorrect % 3 === 0) {
+                    showComboNotification(window.rewardsData.consecutiveCorrect, window.rewardsData.comboMultiplier);
+                }
+            } else {
+                window.rewardsData.consecutiveCorrect = 0;
+                window.rewardsData.comboMultiplier = 1;
+            }
+        }
+
+        // Show combo multiplier notification
+        function showComboNotification(count, multiplier) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 12px;
+                font-weight: bold;
+                font-size: 1.1em;
+                z-index: 10000;
+                animation: slideInRight 0.5s ease;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            `;
+            notification.innerHTML = `🔥 ${count} Combo! ${(multiplier * 100).toFixed(0)}% Bonus XP!`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.5s ease';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // Update daily streak
+        function updateStreak(isCorrect) {
+            const today = new Date().toDateString();
+            const lastStreakDate = localStorage.getItem('lastStreakDate');
+            
+            if (isCorrect) {
+                if (!lastStreakDate || lastStreakDate === today) {
+                    // Same day or first answer
+                    if (!lastStreakDate) {
+                        window.rewardsData.currentStreak = 1;
+                    }
+                } else {
+                    // New day - increment streak
+                    const lastDate = new Date(lastStreakDate);
+                    const today_date = new Date(today);
+                    const daysDiff = Math.floor((today_date - lastDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysDiff === 1) {
+                        window.rewardsData.currentStreak++;
+                    } else {
+                        window.rewardsData.currentStreak = 1; // Reset if gap > 1 day
+                    }
+                }
+                
+                localStorage.setItem('lastStreakDate', today);
+                localStorage.setItem('currentStreak', window.rewardsData.currentStreak);
+                
+                // Update max streak if beaten
+                if (window.rewardsData.currentStreak > window.rewardsData.maxStreak) {
+                    window.rewardsData.maxStreak = window.rewardsData.currentStreak;
+                    localStorage.setItem('maxStreak', window.rewardsData.maxStreak);
+                }
+                
+                // Show milestone notifications
+                if (window.rewardsData.currentStreak % 5 === 0) {
+                    triggerStreakMilestone(window.rewardsData.currentStreak);
+                }
+            }
+        }
+
+        // Show streak milestone celebration
+        function triggerStreakMilestone(days) {
+            const messages = {
+                5: '🔥 5 Day Streak! Amazing!',
+                10: '🔥🔥 10 Day Streak! Outstanding!',
+                15: '🔥🔥🔥 15 Day Streak! Legendary!',
+                20: '👑 20 Day Streak! Champion!'
+            };
+            
+            const message = messages[days] || `🔥 ${days} Day Streak!`;
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #FF6B6B, #FFD93D);
+                color: white;
+                padding: 30px 50px;
+                border-radius: 20px;
+                font-weight: bold;
+                font-size: 1.5em;
+                z-index: 10000;
+                text-align: center;
+                animation: bounceIn 0.6s ease;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            `;
+            notification.innerHTML = message;
+            document.body.appendChild(notification);
+            
+            // Play celebration sound
+            playTone(1000, 100);
+            setTimeout(() => playTone(1200, 100), 150);
+            setTimeout(() => playTone(1400, 200), 300);
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.5s ease';
+                setTimeout(() => notification.remove(), 500);
+            }, 4000);
+        }
+
+        // Check and award achievement badges
+        function checkAchievementBadges() {
+            const achievements = {
+                perfectStreak: {
+                    id: 'perfect-streak-5',
+                    name: '⭐ Perfect Streak',
+                    description: 'Get 5 consecutive correct answers',
+                    threshold: 5,
+                    check: () => window.rewardsData.consecutiveCorrect >= 5,
+                    xpBonus: 100
+                },
+                speedDemon: {
+                    id: 'speed-demon',
+                    name: '⚡ Speed Demon',
+                    description: 'Answer 10 questions under 3 seconds each',
+                    threshold: 10,
+                    check: () => window.speedyAnswers >= 10,
+                    xpBonus: 150
+                },
+                knowledgeMaster: {
+                    id: 'knowledge-master',
+                    name: '🧠 Knowledge Master',
+                    description: 'Reach 90% accuracy',
+                    threshold: 90,
+                    check: () => {
+                        const totalStats = Object.values(window.performanceData?.activities || {})
+                            .reduce((acc, act) => ({
+                                correct: acc.correct + (act.correct || 0),
+                                attempts: acc.attempts + (act.attempts || 0)
+                            }), { correct: 0, attempts: 0 });
+                        return totalStats.attempts > 0 && 
+                               Math.round((totalStats.correct / totalStats.attempts) * 100) >= 90;
+                    },
+                    xpBonus: 200
+                },
+                streakChampion: {
+                    id: 'streak-champion',
+                    name: '🏆 Streak Champion',
+                    description: 'Maintain a 10 day streak',
+                    threshold: 10,
+                    check: () => window.rewardsData.currentStreak >= 10,
+                    xpBonus: 250
+                },
+                comboKing: {
+                    id: 'combo-king',
+                    name: '👑 Combo King',
+                    description: 'Reach 3x combo multiplier',
+                    threshold: 3,
+                    check: () => window.rewardsData.comboMultiplier >= 3,
+                    xpBonus: 180
+                }
+            };
+            
+            Object.values(achievements).forEach(achievement => {
+                if (achievement.check() && !window.rewardsData.badges[achievement.id]) {
+                    awardBadge(achievement);
+                }
+            });
+        }
+
+        // Award and display badge
+        function awardBadge(badge) {
+            window.rewardsData.badges[badge.id] = {
+                name: badge.name,
+                description: badge.description,
+                awardedAt: new Date().toISOString(),
+                xpBonus: badge.xpBonus
+            };
+            
+            localStorage.setItem('badges', JSON.stringify(window.rewardsData.badges));
+            
+            // Award bonus XP
+            window.rewardsData.totalXP += badge.xpBonus;
+            localStorage.setItem('totalXP', window.rewardsData.totalXP);
+            
+            // Show badge notification
+            showBadgeNotification(badge.name, badge.description, badge.xpBonus);
+        }
+
+        // Show badge achievement notification
+        function showBadgeNotification(badgeName, description, xpBonus) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 15px;
+                font-weight: bold;
+                z-index: 10000;
+                text-align: center;
+                animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+                box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+                max-width: 400px;
+            `;
+            notification.innerHTML = `
+                <div style="font-size: 2em; margin-bottom: 10px;">🏆</div>
+                <div style="font-size: 1.3em; margin-bottom: 5px;">${badgeName}</div>
+                <div style="font-size: 0.9em; opacity: 0.9;">${description}</div>
+                <div style="font-size: 1.1em; margin-top: 10px; color: #FFD700;">+${xpBonus} XP</div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.5s ease';
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+        }
+
+        // Get leaderboard data
+        function getLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            
+            // Add current user if not in leaderboard
+            const currentUserName = localStorage.getItem('userName') || 'You';
+            const userIndex = leaderboard.findIndex(u => u.name === currentUserName);
+            
+            if (userIndex === -1) {
+                leaderboard.push({
+                    name: currentUserName,
+                    xp: window.rewardsData.totalXP,
+                    badges: Object.keys(window.rewardsData.badges).length,
+                    streak: window.rewardsData.currentStreak,
+                    updatedAt: new Date().toISOString()
+                });
+            } else {
+                leaderboard[userIndex] = {
+                    name: currentUserName,
+                    xp: window.rewardsData.totalXP,
+                    badges: Object.keys(window.rewardsData.badges).length,
+                    streak: window.rewardsData.currentStreak,
+                    updatedAt: new Date().toISOString()
+                };
+            }
+            
+            // Sort by XP (descending)
+            leaderboard.sort((a, b) => b.xp - a.xp);
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+            
+            return leaderboard;
+        }
+
+        // Display leaderboard
+        function displayLeaderboard() {
+            const leaderboard = getLeaderboard();
+            const boardHTML = leaderboard.slice(0, 10).map((user, index) => `
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    padding: 12px;
+                    margin: 8px 0;
+                    background: ${index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : '#f5f5f5'};
+                    border-radius: 8px;
+                    border-left: 5px solid ${['#FFD700', '#C0C0C0', '#CD7F32'][index] || '#667eea'};
+                ">
+                    <div style="font-weight: bold; font-size: 1.2em; width: 40px; text-align: center;">
+                        ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                    </div>
+                    <div style="flex: 1; margin-left: 15px;">
+                        <div style="font-weight: bold; font-size: 1em;">${user.name}</div>
+                        <div style="font-size: 0.9em; color: #666;">${user.badges} badges | ${user.streak} day streak</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold; font-size: 1.3em; color: #667eea;">${user.xp.toLocaleString()} XP</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            return boardHTML;
+        }
+
+        // Show quick XP popup
+        function showXPPopup(xp, comboMultiplier = 1) {
+            const popup = document.createElement('div');
+            const bonusText = comboMultiplier > 1 ? ` <span style="color: #FFD700;">+${Math.floor((comboMultiplier - 1) * 50)}%!</span>` : '';
+            
+            popup.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0);
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 30px 50px;
+                border-radius: 15px;
+                font-weight: bold;
+                font-size: 2em;
+                z-index: 9999;
+                pointer-events: none;
+                animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            `;
+            popup.innerHTML = `+${xp} XP${bonusText}`;
+            document.body.appendChild(popup);
+            
+            setTimeout(() => {
+                popup.style.animation = 'fadeOut 0.5s ease forwards';
+                setTimeout(() => popup.remove(), 500);
+            }, 2000);
+        }
+
+        // Initialize streak tracking
+        function trackConsecutiveAnswers(isCorrect) {
+            if (!window.consecutiveAnswers) {
+                window.consecutiveAnswers = 0;
+            }
+            
+            if (isCorrect) {
+                window.consecutiveAnswers++;
+                
+                // Milestone notifications
+                if (window.consecutiveAnswers % 10 === 0) {
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 150px;
+                        right: 20px;
+                        background: linear-gradient(135deg, #FF6B6B, #FFD93D);
+                        color: white;
+                        padding: 15px 25px;
+                        border-radius: 12px;
+                        font-weight: bold;
+                        font-size: 1em;
+                        z-index: 10000;
+                        animation: slideInRight 0.5s ease;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                    `;
+                    notification.innerHTML = `🎯 ${window.consecutiveAnswers} Correct Answers!`;
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        notification.style.animation = 'slideOutRight 0.5s ease';
+                        setTimeout(() => notification.remove(), 500);
+                    }, 3000);
+                }
+            } else {
+                window.consecutiveAnswers = 0;
+            }
+        }
+
+        // Speed tracking (for Speed Demon badge)
+        function trackAnswerSpeed(responseTime) {
+            if (!window.speedyAnswers) {
+                window.speedyAnswers = 0;
+            }
+            
+            if (responseTime < 3000) { // Under 3 seconds
+                window.speedyAnswers++;
+            } else {
+                window.speedyAnswers = 0;
+            }
+        }
+
+        // Update UI with current rewards
+        function updateRewardsDisplay() {
+            const xpDisplay = document.getElementById('totalXPDisplay');
+            const streakDisplay = document.getElementById('streakDisplay');
+            const badgesDisplay = document.getElementById('badgesDisplay');
+            const comboDisplay = document.getElementById('comboDisplay');
+            const badgesContainer = document.getElementById('badgesContainer');
+            
+            // Update stats
+            if (xpDisplay) xpDisplay.textContent = window.rewardsData.totalXP.toLocaleString();
+            if (streakDisplay) streakDisplay.textContent = `${window.rewardsData.currentStreak} days`;
+            if (badgesDisplay) badgesDisplay.textContent = Object.keys(window.rewardsData.badges).length;
+            if (comboDisplay) comboDisplay.textContent = `${(window.rewardsData.comboMultiplier * 100).toFixed(0)}%`;
+            
+            // Update badges grid
+            if (badgesContainer && Object.keys(window.rewardsData.badges).length > 0) {
+                const badgesHTML = Object.values(window.rewardsData.badges).map(badge => `
+                    <div class="badge-item" title="${badge.description}">
+                        <div style="font-size: 2em; margin-bottom: 8px;">
+                            ${badge.name === 'Perfect Streak' ? '⭐' : 
+                              badge.name === 'Speed Demon' ? '⚡' : 
+                              badge.name === 'Knowledge Master' ? '🧠' : 
+                              badge.name === 'Streak Champion' ? '🏆' : 
+                              badge.name === 'Combo King' ? '👑' : '🎖️'}
+                        </div>
+                        <div style="font-weight: bold; font-size: 0.9em;">${badge.name}</div>
+                        <div style="font-size: 0.75em; opacity: 0.8;">+${badge.xpBonus} XP</div>
+                    </div>
+                `).join('');
+                badgesContainer.innerHTML = badgesHTML;
+            } else if (badgesContainer) {
+                badgesContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.8; margin: 10px 0;">Complete challenges to earn badges!</p>';
+            }
+        }
+
+        // Initialize rewards on page load
+        initializeRewardsSystem();
+        
+    </script>
+</body>
+</html>

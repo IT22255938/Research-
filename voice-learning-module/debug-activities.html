@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background: #667eea;
+            color: white;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .log {
+            background: #f0f0f0;
+            padding: 10px;
+            margin-top: 10px;
+            border-left: 3px solid #667eea;
+            font-family: monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Activity Debugging</h1>
+
+    <div class="test-section">
+        <h2>Test 1: Check Module Functions</h2>
+        <button onclick="testModuleFunctions()">Test Module Functions</button>
+        <div id="log1" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Start Activity (Direct)</h2>
+        <button onclick="testStartActivity()">Test startActivity()</button>
+        <div id="log2" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Load Activity Directly</h2>
+        <button onclick="testDirectLoad()">Test Direct Activity Load</button>
+        <div id="log3" class="log"></div>
+    </div>
+
+    <script type="module">
+        window.logMessage = function(elementId, message) {
+            const el = document.getElementById(elementId);
+            el.innerHTML += message + '<br>';
+            console.log(message);
+        };
+
+        // Test 1: Check if module functions exist
+        window.testModuleFunctions = async function() {
+            const el = 'log1';
+            document.getElementById(el).innerHTML = '';
+            
+            try {
+                window.logMessage(el, '✓ Testing module functions...');
+                
+                const { getActivityById } = await import('./src/activities/index.js');
+                const { ActivityLauncher, initializeActivity } = await import('./src/activities/activity-launcher.js');
+                
+                window.logMessage(el, '✓ getActivityById imported');
+                window.logMessage(el, '✓ ActivityLauncher imported');
+                window.logMessage(el, '✓ initializeActivity imported');
+                
+                // Try to get an activity
+                const activity = await getActivityById('counting-adventure');
+                window.logMessage(el, `✓ Loaded activity: ${activity.name}`);
+                
+            } catch (error) {
+                window.logMessage(el, `✗ ERROR: ${error.message}`);
+                window.logMessage(el, `Stack: ${error.stack}`);
+            }
+        };
+
+        // Test 2: Test startActivity function
+        window.testStartActivity = async function() {
+            const el = 'log2';
+            document.getElementById(el).innerHTML = '';
+            
+            try {
+                window.logMessage(el, '✓ Testing startActivity()...');
+                
+                if (typeof window.startActivity === 'function') {
+                    window.logMessage(el, '✓ startActivity is accessible on window');
+                    window.logMessage(el, '⏳ Calling startActivity("counting-adventure")...');
+                    await window.startActivity('counting-adventure');
+                    window.logMessage(el, '✓ startActivity completed');
+                } else {
+                    window.logMessage(el, '✗ startActivity NOT found on window');
+                    window.logMessage(el, `Available window functions: ${Object.keys(window).filter(k => typeof window[k] === 'function').join(', ')}`);
+                }
+            } catch (error) {
+                window.logMessage(el, `✗ ERROR: ${error.message}`);
+            }
+        };
+
+        // Test 3: Direct activity load
+        window.testDirectLoad = async function() {
+            const el = 'log3';
+            document.getElementById(el).innerHTML = '';
+            
+            try {
+                window.logMessage(el, '✓ Testing direct load...');
+                
+                const { getActivityById } = await import('./src/activities/index.js');
+                const { ActivityLauncher } = await import('./src/activities/activity-launcher.js');
+                
+                const activity = await getActivityById('counting-adventure');
+                window.logMessage(el, `✓ Got activity: ${activity.name}`);
+                
+                const launcher = new ActivityLauncher(activity, 'test-student', 1);
+                launcher.sessionId = 'local_' + Date.now();
+                window.logMessage(el, `✓ Created launcher with session: ${launcher.sessionId}`);
+                
+                const question = launcher.getNextQuestion();
+                window.logMessage(el, `✓ Got question: ${question.narration}`);
+                
+            } catch (error) {
+                window.logMessage(el, `✗ ERROR: ${error.message}`);
+                window.logMessage(el, `Stack: ${error.stack}`);
+            }
+        };
+
+        // Initialize with info
+        window.logMessage('log1', 'Ready to test. Click buttons above.');
+    </script>
+</body>
+</html>

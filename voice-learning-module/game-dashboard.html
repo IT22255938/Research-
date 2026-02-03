@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Learning Quest - Gamified Voice Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header with Game Status */
+        .game-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .status-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .status-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Character/Avatar Section */
+        .character-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .character-avatar {
+            font-size: 5em;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .character-info {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .character-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-bar {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .stat-name {
+            font-size: 0.8em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar {
+            background: rgba(0,0,0,0.2);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            width: 65%;
+            transition: width 0.3s ease;
+        }
+
+        /* Quest Section */
+        .quests-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid rgba(255,255,255,0.2);
+        }
+
+        .quests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .quest-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quest-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .quest-card.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 0 20px rgba(245, 87, 108, 0.5);
+        }
+
+        .quest-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .quest-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .quest-description {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .quest-reward {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            font-size: 0.9em;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .quest-reward span {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        /* Mini-Games Section */
+        .minigames-section {
+            margin-bottom: 30px;
+        }
+
+        .minigames-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .minigame-card {
+            background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .minigame-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .minigame-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .minigame-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .minigame-desc {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        /* Achievements Section */
+        .achievements-section {
+            margin-bottom: 30px;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .achievement-badge {
+            background: linear-gradient(135deg, #FFD89B 0%, #FFA500 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .achievement-badge:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .achievement-badge.locked {
+            opacity: 0.5;
+            background: #555;
+        }
+
+        .achievement-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .achievement-name {
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        /* Daily Challenge */
+        .daily-challenge {
+            background: linear-gradient(135deg, #FF6B9D 0%, #C44569 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+            50% { box-shadow: 0 10px 60px rgba(255, 107, 157, 0.5); }
+        }
+
+        .challenge-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .challenge-desc {
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+
+        .challenge-reward {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* Voice Control Indicator */
+        .voice-indicator {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+
+        .voice-indicator:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+
+        .voice-indicator.listening {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse-voice 1s infinite;
+        }
+
+        @keyframes pulse-voice {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+            padding: 20px 30px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .character-section {
+                padding: 20px;
+            }
+
+            .character-avatar {
+                font-size: 3em;
+            }
+
+            .character-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .voice-indicator {
+                width: 70px;
+                height: 70px;
+                font-size: 2em;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game Header Stats -->
+        <div class="game-header">
+            <div class="status-card">
+                <div class="status-label">⚔️ Warrior Level</div>
+                <div class="status-value" id="playerLevel">5</div>
+            </div>
+            <div class="status-card">
+                <div class="status-label">⭐ Experience Points</div>
+                <div class="status-value" id="totalXP">2,450 XP</div>
+            </div>
+            <div class="status-card">
+                <div class="status-label">🔥 Current Streak</div>
+                <div class="status-value" id="streakCount">12 Days</div>
+            </div>
+            <div class="status-card">
+                <div class="status-label">🎯 Accuracy Rate</div>
+                <div class="status-value" id="accuracyRate">85%</div>
+            </div>
+        </div>
+
+        <!-- Character Section -->
+        <div class="character-section">
+            <div class="character-info">
+                <strong id="playerName">Welcome, Adventurer!</strong>
+            </div>
+            <div class="character-avatar" id="characterAvatar">🧙‍♂️</div>
+            <p>Learning Quest - Level 5 Wizard</p>
+            
+            <div class="character-stats">
+                <div class="stat-bar">
+                    <div class="stat-name">Health (Confidence)</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+                <div class="stat-bar">
+                    <div class="stat-name">Magic (Knowledge)</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 72%;"></div>
+                    </div>
+                </div>
+                <div class="stat-bar">
+                    <div class="stat-name">Stamina (Focus)</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 90%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Challenge -->
+        <div class="daily-challenge">
+            <div class="challenge-title">
+                ⚡ DAILY CHALLENGE - Today Only!
+            </div>
+            <div class="challenge-desc">
+                Complete 5 questions from Audio Math activity with 100% accuracy
+            </div>
+            <div class="challenge-reward">
+                🎁 Reward: 500 Bonus XP + Mystery Badge
+            </div>
+        </div>
+
+        <!-- Active Quests -->
+        <div class="quests-section">
+            <div class="section-title">⚔️ Active Quests</div>
+            <div class="quests-grid">
+                <div class="quest-card active">
+                    <div class="quest-icon">🔊</div>
+                    <div class="quest-title">Sound Master</div>
+                    <div class="quest-description">Complete 10 Sound Identification questions</div>
+                    <div class="quest-reward">
+                        <span>+200 XP</span>
+                        <span>🎖️ Badge</span>
+                    </div>
+                </div>
+
+                <div class="quest-card">
+                    <div class="quest-icon">🧮</div>
+                    <div class="quest-title">Math Wizard</div>
+                    <div class="quest-description">Solve 15 Audio Math problems (80%+ accuracy)</div>
+                    <div class="quest-reward">
+                        <span>+300 XP</span>
+                        <span>🏆 Title</span>
+                    </div>
+                </div>
+
+                <div class="quest-card">
+                    <div class="quest-icon">📖</div>
+                    <div class="quest-title">Story Teller</div>
+                    <div class="quest-description">Answer 8 Story Listening comprehension questions</div>
+                    <div class="quest-reward">
+                        <span>+250 XP</span>
+                        <span>🎖️ Badge</span>
+                    </div>
+                </div>
+
+                <div class="quest-card">
+                    <div class="quest-icon">👂</div>
+                    <div class="quest-title">Word Scholar</div>
+                    <div class="quest-description">Master Word Listening (Complete all difficulties)</div>
+                    <div class="quest-reward">
+                        <span>+350 XP</span>
+                        <span>⭐ Unlock</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mini-Games -->
+        <div class="minigames-section">
+            <div class="section-title">🎮 Mini-Games & Power-Ups</div>
+            <div class="minigames-grid">
+                <div class="minigame-card" onclick="startMiniGame('speedround')">
+                    <div class="minigame-icon">⚡</div>
+                    <div class="minigame-name">Speed Round</div>
+                    <div class="minigame-desc">Answer 5 questions in 2 minutes - Double XP!</div>
+                </div>
+
+                <div class="minigame-card" onclick="startMiniGame('bossbattle')">
+                    <div class="minigame-icon">🐉</div>
+                    <div class="minigame-name">Boss Battle</div>
+                    <div class="minigame-desc">Face the Knowledge Dragon - 10 tough questions</div>
+                </div>
+
+                <div class="minigame-card" onclick="startMiniGame('duelmatch')">
+                    <div class="minigame-icon">⚔️</div>
+                    <div class="minigame-name">Duel Mode</div>
+                    <div class="minigame-desc">Challenge your past scores - Beat your record!</div>
+                </div>
+
+                <div class="minigame-card" onclick="startMiniGame('survivalmode')">
+                    <div class="minigame-icon">🛡️</div>
+                    <div class="minigame-name">Survival Mode</div>
+                    <div class="minigame-desc">How many questions can you answer correctly?</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="achievements-section">
+            <div class="section-title">🏆 Achievements & Badges</div>
+            <div class="achievements-grid">
+                <div class="achievement-badge">
+                    <div class="achievement-icon">🥇</div>
+                    <div class="achievement-name">First Victory</div>
+                </div>
+                <div class="achievement-badge">
+                    <div class="achievement-icon">🔥</div>
+                    <div class="achievement-name">7-Day Streak</div>
+                </div>
+                <div class="achievement-badge">
+                    <div class="achievement-icon">⭐</div>
+                    <div class="achievement-name">Perfect Score</div>
+                </div>
+                <div class="achievement-badge">
+                    <div class="achievement-icon">🎯</div>
+                    <div class="achievement-name">Accuracy Master</div>
+                </div>
+                <div class="achievement-badge locked">
+                    <div class="achievement-icon">👑</div>
+                    <div class="achievement-name">Legendary (Locked)</div>
+                </div>
+                <div class="achievement-badge locked">
+                    <div class="achievement-icon">🌟</div>
+                    <div class="achievement-name">All-Star (Locked)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-primary" onclick="startGame()">
+                🎮 Start Adventure
+            </button>
+            <button class="btn btn-primary" onclick="openActivities()">
+                📚 Learning Activities
+            </button>
+            <button class="btn btn-secondary" onclick="viewStats()">
+                📊 View Stats
+            </button>
+            <button class="btn btn-secondary" onclick="enableVoiceCommands()">
+                🎤 Voice Commands
+            </button>
+        </div>
+    </div>
+
+    <!-- Voice Control Button -->
+    <div class="voice-indicator" id="voiceBtn" onclick="toggleVoiceControl()" title="Click or say 'Hey, Learning Quest'">
+        🎤
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            playerName: 'Adventurer',
+            level: 5,
+            totalXP: 2450,
+            streak: 12,
+            accuracy: 85,
+            currentQuest: 'Sound Master',
+            achievements: ['First Victory', '7-Day Streak', 'Perfect Score', 'Accuracy Master'],
+            voiceEnabled: false
+        };
+
+        // Initialize Game
+        function initializeGame() {
+            loadGameState();
+            initializeVoiceRecognition();
+            console.log('🎮 Learning Quest Game Initialized!');
+        }
+
+        // Load Game State from localStorage
+        function loadGameState() {
+            const saved = localStorage.getItem('gameState');
+            if (saved) {
+                gameState = JSON.parse(saved);
+                updateUI();
+            }
+        }
+
+        // Save Game State
+        function saveGameState() {
+            localStorage.setItem('gameState', JSON.stringify(gameState));
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('playerLevel').textContent = gameState.level;
+            document.getElementById('totalXP').textContent = gameState.totalXP.toLocaleString() + ' XP';
+            document.getElementById('streakCount').textContent = gameState.streak + ' Days';
+            document.getElementById('accuracyRate').textContent = gameState.accuracy + '%';
+            document.getElementById('playerName').textContent = `Welcome, ${gameState.playerName}!`;
+        }
+
+        // Start Adventure
+        function startGame() {
+            showNotification('⚔️ Adventure Starting! Prepare yourself!');
+            playVoiceMessage('Welcome adventurer! Your learning quest awaits. Choose your first mission!');
+            setTimeout(() => {
+                openActivities();
+            }, 2000);
+        }
+
+        // Open Learning Activities
+        function openActivities() {
+            window.location.href = 'gamification.html';
+        }
+
+        // View Stats
+        function viewStats() {
+            window.location.href = 'analytics.html';
+        }
+
+        // Start Mini-Game
+        function startMiniGame(gameType) {
+            showNotification(`🎮 Starting ${gameType.toUpperCase()}...`);
+            playVoiceMessage(`Beginning ${gameType}. Good luck!`);
+        }
+
+        // Voice Control
+        let recognition;
+        function initializeVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = () => {
+                    document.getElementById('voiceBtn').classList.add('listening');
+                };
+
+                recognition.onend = () => {
+                    document.getElementById('voiceBtn').classList.remove('listening');
+                };
+
+                recognition.onresult = (event) => {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    handleVoiceCommand(transcript.toLowerCase());
+                };
+            }
+        }
+
+        // Toggle Voice Control
+        function toggleVoiceControl() {
+            if (recognition) {
+                if (gameState.voiceEnabled) {
+                    recognition.stop();
+                    gameState.voiceEnabled = false;
+                } else {
+                    recognition.start();
+                    gameState.voiceEnabled = true;
+                }
+            }
+        }
+
+        // Enable Voice Commands
+        function enableVoiceCommands() {
+            if (recognition) {
+                recognition.start();
+                gameState.voiceEnabled = true;
+                playVoiceMessage('Voice commands enabled. Say "start adventure", "view stats", or "open activities"');
+            }
+        }
+
+        // Handle Voice Commands
+        function handleVoiceCommand(command) {
+            console.log('Voice Command:', command);
+            
+            if (command.includes('start') || command.includes('adventure')) {
+                startGame();
+            } else if (command.includes('stats') || command.includes('view')) {
+                viewStats();
+            } else if (command.includes('activities') || command.includes('open')) {
+                openActivities();
+            } else if (command.includes('help')) {
+                playVoiceMessage('Available commands: Start adventure, View stats, Open activities, or say help');
+            } else {
+                playVoiceMessage('Command not recognized. Say help for available commands.');
+            }
+        }
+
+        // Text-to-Speech
+        async function playVoiceMessage(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Show Notification
+        function showNotification(message) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.remove();
+            }, 3000);
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', initializeGame);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 's') startGame();
+            if (e.key === 'v') enableVoiceCommands();
+            if (e.key === 'a') openActivities();
+            if (e.key === 't') viewStats();
+        });
+    </script>
+</body>
+</html>

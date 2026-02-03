@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Well Come - Gamification Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #764ba2;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #f44336;
+            --light-bg: #f5f7fa;
+            --border-color: #e0e0e0;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+        }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+        
+        .app-header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.85em;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Difficulty Selection Card */
+        .difficulty-section {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid var(--border-color);
+        }
+        
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .difficulty-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            text-align: center;
+        }
+        
+        .difficulty-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .difficulty-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .difficulty-btn.easy {
+            background: var(--success);
+        }
+        
+        .difficulty-btn.medium {
+            background: var(--warning);
+        }
+        
+        .difficulty-btn.hard {
+            background: var(--danger);
+        }
+        
+        .difficulty-status {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+        
+        .difficulty-status.active {
+            background: #e3f2fd;
+            border-left-color: var(--primary);
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        /* Activities Section */
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+        
+        .activity-btn {
+            padding: 20px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+        
+        .activity-btn:hover {
+            border-color: var(--primary);
+            background: #f0f4ff;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .activity-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .activity-emoji {
+            font-size: 2.5em;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .activity-name {
+            font-size: 0.85em;
+            line-height: 1.3;
+        }
+        
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-card.success {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: white;
+        }
+        
+        .stat-card.warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+        
+        .stat-card.info {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: white;
+        }
+        
+        .stat-card h3 {
+            font-size: 0.85em;
+            font-weight: 500;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .stat-card .value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 15px;
+        }
+        
+        .progress-label {
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .progress-bar {
+            background: var(--light-bg);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        /* Badges Section */
+        .badges-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            background: var(--light-bg);
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .badge:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+        
+        .badge.earned {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Leaderboard */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .leaderboard-table th {
+            background: var(--light-bg);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .leaderboard-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .rank-badge {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: bold;
+        }
+        
+        .rank-badge.gold {
+            background: #ffd700;
+            color: #333;
+        }
+        
+        .rank-badge.silver {
+            background: #c0c0c0;
+            color: #333;
+        }
+        
+        .rank-badge.bronze {
+            background: #cd7f32;
+            color: white;
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            border-radius: 4px;
+            color: #856404;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        button.primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        button.primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+        
+        button.secondary {
+            background: var(--light-bg);
+            color: var(--text-dark);
+        }
+        
+        button.secondary:hover:not(:disabled) {
+            background: var(--border-color);
+        }
+        
+        @media (max-width: 768px) {
+            .app-header {
+                flex-direction: column;
+            }
+            
+            .header-stats {
+                width: 100%;
+                justify-content: space-around;
+            }
+            
+            .difficulty-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="app-header">
+        <div class="logo">🎓 VoiceLearn Pro</div>
+        <div class="header-stats">
+            <div class="stat-item">
+                <div class="stat-label">📊 Total XP</div>
+                <div class="stat-value" id="totalXP">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">🔥 Streak</div>
+                <div class="stat-value" id="streakCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">✅ Accuracy</div>
+                <div class="stat-value" id="accuracy">0%</div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="window.location.href='adaptive-levels.html'" style="padding: 10px 20px; background: #ff6b35; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#e55a2b';" onmouseout="this.style.background='#ff6b35';">🎮 Adaptive Levels</button>
+            <button onclick="window.location.href='analytics.html'" style="padding: 10px 20px; background: #764ba2; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#5a3a85';" onmouseout="this.style.background='#764ba2';">📊 Analytics</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Difficulty Selection -->
+        <div class="card difficulty-section">
+            <h2>⚙️ Select Level</h2>
+            <div class="difficulty-grid">
+                <button type="button" id="easyBtn" class="difficulty-btn easy" onclick="setDifficulty('easy')">🟢 Easy</button>
+                <button type="button" id="mediumBtn" class="difficulty-btn medium" onclick="setDifficulty('medium')">🟡 Medium</button>
+                <button type="button" id="hardBtn" class="difficulty-btn hard" onclick="setDifficulty('hard')">🔴 Hard</button>
+            </div>
+            <div class="difficulty-status" id="difficultyStatus">
+                👈 Select a difficulty level to begin
+            </div>
+            <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px; display: none;" id="suggestedDifficulty">
+                <strong>💡 Suggested:</strong> <span id="suggestionText"></span> based on your performance!
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Learning Activities -->
+            <div class="card">
+                <h2>📚 Learning Activities</h2>
+                <div class="activities-grid">
+                    <button type="button" id="countingBtn" class="activity-btn" onclick="startActivity('counting')">
+                        <span class="activity-emoji">🔢</span>
+                        <span class="activity-name">Counting<br>Adventure</span>
+                    </button>
+                    <button type="button" id="numbersBtn" class="activity-btn" onclick="startActivity('numbers')">
+                        <span class="activity-emoji">🎯</span>
+                        <span class="activity-name">Number<br>Recognition</span>
+                    </button>
+                    <button type="button" id="mathBtn" class="activity-btn" onclick="startActivity('math')">
+                        <span class="activity-emoji">➕</span>
+                        <span class="activity-name">Basic<br>Math</span>
+                    </button>
+                    <button type="button" id="alphabetBtn" class="activity-btn" onclick="startActivity('alphabet')">
+                        <span class="activity-emoji">🔤</span>
+                        <span class="activity-name">Alphabet<br>Learning</span>
+                    </button>
+                    <button type="button" id="colorsBtn" class="activity-btn" onclick="startActivity('colors')">
+                        <span class="activity-emoji">🎨</span>
+                        <span class="activity-name">Colors &<br>Shapes</span>
+                    </button>
+                    <button type="button" id="phonicsBtn" class="activity-btn" onclick="startActivity('phonics')">
+                        <span class="activity-emoji">🔊</span>
+                        <span class="activity-name">Phonics<br>Sounds</span>
+                    </button>
+                    <button type="button" id="timeBtn" class="activity-btn" onclick="startActivity('time')">
+                        <span class="activity-emoji">🕐</span>
+                        <span class="activity-name">Time<br>Telling</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Audio-Based Activities (Accessible for Blind Students) -->
+            <div class="card">
+                <h2>🔊 Audio Learning Activities</h2>
+                <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">✅ Fully audio-based - Perfect for all learners!</p>
+                <div class="activities-grid">
+                    <button type="button" id="soundBtn" class="activity-btn" onclick="startActivity('soundidentification')" aria-label="Sound Identification activity - Listen and identify sounds" style="background: linear-gradient(135deg, #FF6B9D 0%, #C44569 100%);">
+                        <span class="activity-emoji">🔊</span>
+                        <span class="activity-name">Sound<br>Identification</span>
+                    </button>
+                    <button type="button" id="wordBtn" class="activity-btn" onclick="startActivity('wordlistening')" aria-label="Word Listening activity - Listen and answer questions about words" style="background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);">
+                        <span class="activity-emoji">👂</span>
+                        <span class="activity-name">Word<br>Listening</span>
+                    </button>
+                    <button type="button" id="mathAudioBtn" class="activity-btn" onclick="startActivity('mathproblems')" aria-label="Audio Math activity - Listen to math problems and solve them" style="background: linear-gradient(135deg, #FFD89B 0%, #FFA500 100%);">
+                        <span class="activity-emoji">🧮</span>
+                        <span class="activity-name">Audio<br>Math</span>
+                    </button>
+                    <button type="button" id="storyBtn" class="activity-btn" onclick="startActivity('storycomprehension')" aria-label="Story Listening activity - Listen to stories and answer comprehension questions" style="background: linear-gradient(135deg, #A8E6CF 0%, #56AB91 100%);">
+                        <span class="activity-emoji">📖</span>
+                        <span class="activity-name">Story<br>Listening</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="card">
+                <h2>📈 Your Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card success">
+                        <h3>Correct Answers</h3>
+                        <div class="value" id="correctCount">0</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <h3>Total Attempts</h3>
+                        <div class="value" id="attemptsCount">0</div>
+                    </div>
+                    <div class="stat-card info">
+                        <h3>Activities Done</h3>
+                        <div class="value" id="activitiesDone">0</div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Overall Progress</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Badges & Achievements -->
+        <div class="card">
+            <h2>🏆 Achievements</h2>
+            <div class="badges-container" id="badgesContainer">
+                <div class="badge" title="First Steps">🌟</div>
+                <div class="badge" title="Quick Learner">⚡</div>
+                <div class="badge" title="Accuracy Master">🎯</div>
+                <div class="badge" title="Streak King">🔥</div>
+                <div class="badge" title="Math Wizard">🧙</div>
+                <div class="badge" title="Word Master">📚</div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="card">
+            <h2>🥇 Top Learners</h2>
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Learner</th>
+                        <th>XP</th>
+                        <th>Streak</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    <tr>
+                        <td><span class="rank-badge gold">1</span></td>
+                        <td>You</td>
+                        <td id="yourXP">0 XP</td>
+                        <td>🔥 0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        Get instant feedback and earn XP for correct answers!
+        </div>
+    </div>
+
+    <script>
+        console.log('🔴 Script loading started...');
+        
+        // ================================================
+        // VOICE RECOGNITION & SYNTHESIS SETUP
+        // ================================================
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        const synth = window.speechSynthesis;
+        
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        
+        let selectedDifficulty = null;
+        let isRecording = false;
+        let userTranscript = '';
+        let currentActivityId = null;
+        let sessionStartTime = null;
+        let stats = {
+            totalXP: 0,
+            correctAnswers: 0,
+            totalAttempts: 0,
+            streak: 0,
+            activitiesDone: 0,
+            easyCorrect: 0,
+            easyTotal: 0,
+            mediumCorrect: 0,
+            mediumTotal: 0,
+            hardCorrect: 0,
+            hardTotal: 0
+        };
+        
+        console.log('✅ Variables initialized');
+
+        // Text-to-Speech Function
+        function speak(text, rate = 0.9) {
+            return new Promise((resolve) => {
+                synth.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = rate;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                utterance.onend = () => resolve();
+                synth.speak(utterance);
+            });
+        }
+
+        // Speech Recognition Handlers
+        recognition.onstart = () => {
+            isRecording = true;
+            userTranscript = '';
+            const statusDiv = document.getElementById('voiceStatus');
+            if (statusDiv) {
+                statusDiv.innerHTML = '<p style="color: #2196F3; font-weight: bold; animation: blink 1s infinite;">🎤 Recording... Speak now!</p>';
+            }
+        };
+
+        recognition.onresult = (event) => {
+            let interim = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    userTranscript += transcript + ' ';
+                } else {
+                    interim += transcript;
+                }
+            }
+            const display = userTranscript + interim;
+            const statusDiv = document.getElementById('voiceStatus');
+            if (statusDiv) {
+                statusDiv.innerHTML = '<p style="color: #2196F3;"><strong>You said:</strong> "' + display.trim() + '"</p>';
+            }
+        };
+
+        recognition.onerror = (event) => {
+            const statusDiv = document.getElementById('voiceStatus');
+            if (statusDiv) {
+                statusDiv.innerHTML = '<p style="color: #f44336; font-weight: bold;">❌ Error: ' + event.error + '</p>';
+            }
+        };
+
+        recognition.onend = () => {
+            console.log('Recording ended, transcript:', userTranscript);
+            isRecording = false;
+            // Auto-check answer when recording ends
+            if (userTranscript.trim() && window.allQuestions && window.currentQuestionIndex !== undefined) {
+                console.log('Auto-checking answer:', userTranscript);
+                checkAnswerAutomatically();
+            } else {
+                console.log('No transcript or questions not loaded');
+            }
+        };
+
+        // Load stats from localStorage
+        function loadStats() {
+            const saved = localStorage.getItem('voiceLearnStats');
+            if (saved) {
+                stats = JSON.parse(saved);
+            }
+            updateUI();
+        }
+
+        // Save stats to localStorage
+        function saveStats() {
+            localStorage.setItem('voiceLearnStats', JSON.stringify(stats));
+            updateUI();
+            updateAdaptiveLevel();
+        }
+
+        // Update adaptive level system
+        function updateAdaptiveLevel() {
+            let adaptiveData = JSON.parse(localStorage.getItem('adaptiveData') || '{}');
+            
+            if (!adaptiveData.currentLevel) {
+                adaptiveData.currentLevel = 1;
+                adaptiveData.levelHistory = [1];
+                adaptiveData.levelActivities = {};
+            }
+            
+            // Track activities at current level
+            const currentLevel = adaptiveData.currentLevel;
+            adaptiveData.levelActivities[currentLevel] = (adaptiveData.levelActivities[currentLevel] || 0) + 1;
+            
+            // Auto-suggest difficulty based on performance
+            const accuracy = stats.totalAttempts > 0 ? (stats.correctAnswers / stats.totalAttempts) * 100 : 0;
+            
+            if (accuracy >= 85) {
+                adaptiveData.suggestedDifficulty = 'hard';
+            } else if (accuracy >= 70) {
+                adaptiveData.suggestedDifficulty = 'medium';
+            } else {
+                adaptiveData.suggestedDifficulty = 'easy';
+            }
+            
+            localStorage.setItem('adaptiveData', JSON.stringify(adaptiveData));
+        }
+
+        // Update UI with stats
+        function updateUI() {
+            document.getElementById('totalXP').textContent = stats.totalXP;
+            document.getElementById('streakCount').textContent = stats.streak;
+            document.getElementById('correctCount').textContent = stats.correctAnswers;
+            document.getElementById('attemptsCount').textContent = stats.totalAttempts;
+            document.getElementById('activitiesDone').textContent = stats.activitiesDone;
+            document.getElementById('yourXP').textContent = stats.totalXP + ' XP';
+            
+            const accuracy = stats.totalAttempts > 0 
+                ? Math.round((stats.correctAnswers / stats.totalAttempts) * 100)
+                : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            document.getElementById('progressPercent').textContent = accuracy + '%';
+            document.getElementById('progressFill').style.width = accuracy + '%';
+        }
+
+        // Set difficulty
+        function setDifficulty(level) {
+            console.log('Difficulty button clicked:', level);
+            selectedDifficulty = level;
+            const statusEl = document.getElementById('difficultyStatus');
+            const levelEmoji = level === 'easy' ? '🟢' : level === 'medium' ? '🟡' : '🔴';
+            const levelText = level.charAt(0).toUpperCase() + level.slice(1);
+            
+            if (statusEl) {
+                statusEl.textContent = `✅ ${levelEmoji} ${levelText} Mode Selected`;
+                statusEl.classList.add('active');
+            }
+            
+            window.currentDifficulty = level;
+            localStorage.setItem('selectedDifficulty', level);
+            console.log('Difficulty set to:', level);
+        }
+
+        // Start activity
+        function startActivity(activityId) {
+            console.log('Activity clicked:', activityId);
+            if (!selectedDifficulty) {
+                console.log('No difficulty selected');
+                alert('⚠️ Please select a difficulty level first!');
+                return;
+            }
+            
+            console.log('Starting activity:', activityId, 'with difficulty:', selectedDifficulty);
+            localStorage.setItem('currentActivity', activityId);
+            localStorage.setItem('currentDifficulty', selectedDifficulty);
+            
+            setTimeout(function() {
+                console.log('Loading activity page...');
+                loadActivityPage(activityId, selectedDifficulty);
+            }, 300);
+        }
+
+        // Load activity page with voice - ONE QUESTION AT A TIME
+        function loadActivityPage(activityId, difficulty) {
+            window.currentActivityId = activityId;
+            sessionStartTime = Date.now();
+            
+            const activities = {
+                'counting': {
+                    name: 'Counting Adventure 🔢',
+                    description: 'Count the objects!',
+                    questions: {
+                        easy: [
+                            { q: 'How many stars?', display: '⭐', a: ['1', 'one'] },
+                            { q: 'How many hearts?', display: '❤️ ❤️', a: ['2', 'two'] },
+                            { q: 'How many apples?', display: '🍎 🍎 🍎', a: ['3', 'three'] },
+                            { q: 'How many bananas?', display: '🍌 🍌 🍌 🍌', a: ['4', 'four'] },
+                            { q: 'How many flowers?', display: '🌸 🌸 🌸 🌸 🌸', a: ['5', 'five'] }
+                        ],
+                        medium: [
+                            { q: 'How many: 3 plus 2?', display: '🍎 🍎 🍎 + 🍌 🍌', a: ['5', 'five'] },
+                            { q: 'How many: 4 plus 3?', display: '⭐ ⭐ ⭐ ⭐ + ❤️ ❤️ ❤️', a: ['7', 'seven'] },
+                            { q: 'How many: 2 plus 6?', display: '⭐ ⭐ + 🌸 🌸 🌸 🌸 🌸 🌸', a: ['8', 'eight'] },
+                            { q: 'How many total?', display: '🍎 🍎 🍎 🍎 🍎 🍌 🍌', a: ['7', 'seven'] },
+                            { q: 'How many total?', display: '❤️ ❤️ ❤️ ❤️ 🌸 🌸 🌸 🌸', a: ['8', 'eight'] }
+                        ],
+                        hard: [
+                            { q: 'How many: 5 plus 7?', display: '⭐ ⭐ ⭐ ⭐ ⭐ + 🍎 🍎 🍎 🍎 🍎 🍎 🍎', a: ['12', 'twelve'] },
+                            { q: 'How many: 8 plus 9?', display: '8️⃣ + 9️⃣', a: ['17', 'seventeen'] },
+                            { q: 'How many: 6 plus 8?', display: '🌸 🌸 🌸 🌸 🌸 🌸 + ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️', a: ['14', 'fourteen'] },
+                            { q: 'How many if we remove 3?', display: '🍎 🍎 🍎 🍎 🍎 🍎 🍎 🍎 - 3️⃣', a: ['5', 'five'] },
+                            { q: 'How many if we add 2?', display: '⭐ ⭐ ⭐ ⭐ ⭐ + 2️⃣', a: ['7', 'seven'] }
+                        ]
+                    }
+                },
+                'numbers': {
+                    name: 'Number Recognition 🎯',
+                    description: 'Say the number!',
+                    questions: {
+                        easy: [
+                            { q: 'What number is this?', display: '1️⃣', a: ['1', 'one'] },
+                            { q: 'What number is this?', display: '2️⃣', a: ['2', 'two'] },
+                            { q: 'What number is this?', display: '3️⃣', a: ['3', 'three'] },
+                            { q: 'What number is this?', display: '4️⃣', a: ['4', 'four'] },
+                            { q: 'What number is this?', display: '5️⃣', a: ['5', 'five'] }
+                        ],
+                        medium: [
+                            { q: 'What number is this?', display: '6️⃣', a: ['6', 'six'] },
+                            { q: 'What number is this?', display: '7️⃣', a: ['7', 'seven'] },
+                            { q: 'What number is this?', display: '8️⃣', a: ['8', 'eight'] },
+                            { q: 'What number is this?', display: '9️⃣', a: ['9', 'nine'] },
+                            { q: 'What number is this?', display: '🔟', a: ['10', 'ten'] }
+                        ],
+                        hard: [
+                            { q: 'What number is this?', display: '1️⃣5️⃣', a: ['15', 'fifteen'] },
+                            { q: 'What number is this?', display: '2️⃣0️⃣', a: ['20', 'twenty'] },
+                            { q: 'What number is this?', display: '5️⃣0️⃣', a: ['50', 'fifty'] },
+                            { q: 'What number is this?', display: '7️⃣5️⃣', a: ['75', 'seventy five'] },
+                            { q: 'What number is this?', display: '1️⃣0️⃣0️⃣', a: ['100', 'one hundred'] }
+                        ]
+                    }
+                },
+                'math': {
+                    name: 'Basic Math ➕',
+                    description: 'Addition and subtraction!',
+                    questions: {
+                        easy: [
+                            { q: 'What is 1 plus 1?', display: '1️⃣ + 1️⃣ = ?', a: ['2', 'two'] },
+                            { q: 'What is 2 plus 1?', display: '2️⃣ + 1️⃣ = ?', a: ['3', 'three'] },
+                            { q: 'What is 3 plus 2?', display: '3️⃣ + 2️⃣ = ?', a: ['5', 'five'] },
+                            { q: 'What is 4 plus 1?', display: '4️⃣ + 1️⃣ = ?', a: ['5', 'five'] },
+                            { q: 'What is 2 minus 1?', display: '2️⃣ - 1️⃣ = ?', a: ['1', 'one'] }
+                        ],
+                        medium: [
+                            { q: 'What is 5 plus 3?', display: '5️⃣ + 3️⃣ = ?', a: ['8', 'eight'] },
+                            { q: 'What is 4 plus 4?', display: '4️⃣ + 4️⃣ = ?', a: ['8', 'eight'] },
+                            { q: 'What is 6 plus 3?', display: '6️⃣ + 3️⃣ = ?', a: ['9', 'nine'] },
+                            { q: 'What is 7 minus 2?', display: '7️⃣ - 2️⃣ = ?', a: ['5', 'five'] },
+                            { q: 'What is 10 minus 3?', display: '1️⃣0️⃣ - 3️⃣ = ?', a: ['7', 'seven'] }
+                        ],
+                        hard: [
+                            { q: 'What is 12 plus 8?', display: '1️⃣2️⃣ + 8️⃣ = ?', a: ['20', 'twenty'] },
+                            { q: 'What is 15 plus 7?', display: '1️⃣5️⃣ + 7️⃣ = ?', a: ['22', 'twenty two'] },
+                            { q: 'What is 18 plus 6?', display: '1️⃣8️⃣ + 6️⃣ = ?', a: ['24', 'twenty four'] },
+                            { q: 'What is 20 minus 5?', display: '2️⃣0️⃣ - 5️⃣ = ?', a: ['15', 'fifteen'] },
+                            { q: 'What is 25 minus 10?', display: '2️⃣5️⃣ - 1️⃣0️⃣ = ?', a: ['15', 'fifteen'] }
+                        ]
+                    }
+                },
+                'alphabet': {
+                    name: 'Alphabet Learning 🔤',
+                    description: 'Say the letter!',
+                    questions: {
+                        easy: [
+                            { q: 'What letter is this?', display: 'A', a: ['a', 'ay'] },
+                            { q: 'What letter is this?', display: 'B', a: ['b', 'bee'] },
+                            { q: 'What letter is this?', display: 'C', a: ['c', 'see'] },
+                            { q: 'What letter is this?', display: 'D', a: ['d', 'dee'] },
+                            { q: 'What letter is this?', display: 'E', a: ['e', 'ee'] }
+                        ],
+                        medium: [
+                            { q: 'What letter is this?', display: 'M', a: ['m', 'em'] },
+                            { q: 'What letter is this?', display: 'N', a: ['n', 'en'] },
+                            { q: 'What letter is this?', display: 'R', a: ['r', 'are'] },
+                            { q: 'What letter is this?', display: 'S', a: ['s', 'ess'] },
+                            { q: 'What letter is this?', display: 'T', a: ['t', 'tee'] }
+                        ],
+                        hard: [
+                            { q: 'What letter comes after M?', display: 'M → ?', a: ['n', 'en'] },
+                            { q: 'What letter comes before T?', display: '? ← T', a: ['s', 'ess'] },
+                            { q: 'What is the middle letter?', display: 'A...Z = ?', a: ['m', 'em'] },
+                            { q: 'What letter is this?', display: 'Z', a: ['z', 'zee'] },
+                            { q: 'Spell the word CAT!', display: '🐱', a: ['c a t', 'cat'] }
+                        ]
+                    }
+                },
+                'colors': {
+                    name: 'Colors & Shapes 🎨',
+                    description: 'Name the color!',
+                    questions: {
+                        easy: [
+                            { q: 'What color is this?', display: '🟩', a: ['green'] },
+                            { q: 'What color is this?', display: '🔴', a: ['red'] },
+                            { q: 'What color is this?', display: '🟦', a: ['blue'] }
+                        ],
+                        medium: [
+                            { q: 'What color is the sun?', display: '☀️', a: ['yellow', 'gold'] },
+                            { q: 'What color are leaves?', display: '🍃', a: ['green'] },
+                            { q: 'What color is fire?', display: '🔥', a: ['red', 'orange'] }
+                        ],
+                        hard: [
+                            { q: 'What color is grape?', display: '🍇', a: ['purple', 'violet'] },
+                            { q: 'What color is orange fruit?', display: '🍊', a: ['orange'] },
+                            { q: 'What color is sky?', display: '☁️', a: ['blue', 'white'] }
+                        ]
+                    }
+                },
+                'phonics': {
+                    name: 'Phonics Sounds 🔊',
+                    description: 'Say the sound!',
+                    questions: {
+                        easy: [
+                            { q: 'What sound does A make?', display: 'A 🔊', a: ['a', 'ah'] },
+                            { q: 'What sound does B make?', display: 'B 🔊', a: ['b', 'buh'] },
+                            { q: 'What sound does C make?', display: 'C 🔊', a: ['k', 'kuh', 'c'] }
+                        ],
+                        medium: [
+                            { q: 'What sound does S make?', display: 'S 🔊', a: ['s', 'sss'] },
+                            { q: 'What sound does T make?', display: 'T 🔊', a: ['t', 'tuh'] },
+                            { q: 'What sound does N make?', display: 'N 🔊', a: ['n', 'nuh'] }
+                        ],
+                        hard: [
+                            { q: 'What sound does TH make?', display: 'TH 🔊', a: ['th'] },
+                            { q: 'What sound does SH make?', display: 'SH 🔊', a: ['sh'] },
+                            { q: 'What sound does CH make?', display: 'CH 🔊', a: ['ch'] }
+                        ]
+                    }
+                },
+                'time': {
+                    name: 'Time Telling 🕐',
+                    description: 'Tell the time!',
+                    questions: {
+                        easy: [
+                            { q: 'What time is this?', display: '🕒', a: ['2', 'two'] },
+                            { q: 'What time is this?', display: '🕕', a: ['5', 'five'] },
+                            { q: 'What time is this?', display: '🕛', a: ['12', 'twelve'] }
+                        ],
+                        medium: [
+                            { q: 'What time is this?', display: '🕐', a: ['1', 'one'] },
+                            { q: 'What time is this?', display: '🕘', a: ['8', 'eight'] },
+                            { q: 'How many seconds in a minute?', display: '1 min = ?', a: ['60', 'sixty'] }
+                        ],
+                        hard: [
+                            { q: 'How many minutes in 1 hour?', display: '1 hr = ?', a: ['60', 'sixty'] },
+                            { q: 'How many hours in 1 day?', display: '1 day = ?', a: ['24', 'twenty four'] },
+                            { q: 'How many minutes in 2 hours?', display: '2 hrs = ?', a: ['120', 'one hundred twenty'] }
+                        ]
+                    }
+                },
+                'soundidentification': {
+                    name: '🔊 Sound Identification',
+                    description: 'Listen and identify sounds!',
+                    questions: {
+                        easy: [
+                            { q: 'Is this the sound of a dog or a cat? Listen: Woof woof!', display: '🔊', a: ['dog'] },
+                            { q: 'Is this the sound of a car or a train? Listen: Vroom vroom!', display: '🔊', a: ['car'] },
+                            { q: 'Is this the sound of a bell or a whistle? Listen: Ding ding!', display: '🔊', a: ['bell'] },
+                            { q: 'Is this the sound of rain or wind? Listen: Pitter patter!', display: '🔊', a: ['rain'] },
+                            { q: 'Is this the sound of a door or a window? Listen: Knock knock!', display: '🔊', a: ['door'] }
+                        ],
+                        medium: [
+                            { q: 'What animal sound is this? Moo moo!', display: '🔊', a: ['cow', 'moo'] },
+                            { q: 'What animal sound is this? Quack quack!', display: '🔊', a: ['duck', 'quack'] },
+                            { q: 'What instrument is this? Ding dong!', display: '🔊', a: ['bell', 'doorbell'] },
+                            { q: 'What is this sound? Ring ring!', display: '🔊', a: ['phone', 'telephone'] },
+                            { q: 'What animal is this? Neigh neigh!', display: '🔊', a: ['horse', 'neigh'] }
+                        ],
+                        hard: [
+                            { q: 'Can you identify this sound? Tick tock tick tock!', display: '🔊', a: ['clock', 'watch'] },
+                            { q: 'What musical instrument is this? Ding ding ding!', display: '🔊', a: ['triangle', 'bell'] },
+                            { q: 'What is the sound of water flowing called? Splash!', display: '🔊', a: ['water', 'splash'] },
+                            { q: 'What bird is this? Tweet tweet!', display: '🔊', a: ['bird'] },
+                            { q: 'What sound is this? Boom boom!', display: '🔊', a: ['thunder', 'drum'] }
+                        ]
+                    }
+                },
+                'wordlistening': {
+                    name: '👂 Word Listening',
+                    description: 'Listen and answer questions about words!',
+                    questions: {
+                        easy: [
+                            { q: 'I say the word: Apple. What is the first sound? A or O?', display: '👂', a: ['a'] },
+                            { q: 'I say the word: Ball. What is the first letter? B or D?', display: '👂', a: ['b'] },
+                            { q: 'I say the word: Cat. What is the last letter? T or S?', display: '👂', a: ['t'] },
+                            { q: 'I say the word: Dog. How many letters? 3 or 4?', display: '👂', a: ['3', 'three'] },
+                            { q: 'I say the word: Bird. What vowel is in it? I or E?', display: '👂', a: ['i'] }
+                        ],
+                        medium: [
+                            { q: 'I say: Sun and Moon. Which word has fewer letters?', display: '👂', a: ['sun'] },
+                            { q: 'I say: Happy. How many syllables? 2 or 3?', display: '👂', a: ['2', 'two'] },
+                            { q: 'I say: Elephant. What is the last sound? T or T?', display: '👂', a: ['t'] },
+                            { q: 'I say: Rainbow. What vowels does it have? A and O or E and I?', display: '👂', a: ['a', 'o', 'a and o'] },
+                            { q: 'I say: Tiger. Does it rhyme with Bigger or Faster?', display: '👂', a: ['bigger'] }
+                        ],
+                        hard: [
+                            { q: 'I say: Beautiful and Wonderful. What letter do they both start with? B or W?', display: '👂', a: ['b', 'w'] },
+                            { q: 'I say: Computer. Can you spell the first 3 letters for me? C, O, M?', display: '👂', a: ['c o m', 'com', 'c', 'o', 'm'] },
+                            { q: 'I say: Butterfly. What is the middle syllable? Ter or Fly?', display: '👂', a: ['ter', 'fly'] },
+                            { q: 'I say: Telephone. How many syllables does it have?', display: '👂', a: ['3', 'three'] },
+                            { q: 'I say: Adventure. What letter appears twice?', display: '👂', a: ['a'] }
+                        ]
+                    }
+                },
+                'mathproblems': {
+                    name: '🧮 Audio Math',
+                    description: 'Listen to math problems and answer!',
+                    questions: {
+                        easy: [
+                            { q: 'If I have 2 apples and you give me 1 more, how many do I have?', display: '🧮', a: ['3', 'three'] },
+                            { q: 'There are 4 dogs in the park. 2 run away. How many are left?', display: '🧮', a: ['2', 'two'] },
+                            { q: 'You have 3 books. I give you 2 more. How many books do you have now?', display: '🧮', a: ['5', 'five'] },
+                            { q: 'I had 6 cookies and ate 1. How many are left?', display: '🧮', a: ['5', 'five'] },
+                            { q: 'There are 2 red cars and 3 blue cars. How many cars in total?', display: '🧮', a: ['5', 'five'] }
+                        ],
+                        medium: [
+                            { q: 'John has 8 toys. He loses 3 toys. How many toys does he have now?', display: '🧮', a: ['5', 'five'] },
+                            { q: 'If 2 times 3 equals 6, then 3 times 3 equals?', display: '🧮', a: ['9', 'nine'] },
+                            { q: 'There are 12 students. 7 are girls. How many are boys?', display: '🧮', a: ['5', 'five'] },
+                            { q: 'A store had 20 apples. They sold 8. How many are left?', display: '🧮', a: ['12', 'twelve'] },
+                            { q: 'If you have 15 dollars and spend 6 dollars, how much do you have?', display: '🧮', a: ['9', 'nine'] }
+                        ],
+                        hard: [
+                            { q: 'If 4 times 5 equals 20, then 5 times 5 equals?', display: '🧮', a: ['25', 'twenty five'] },
+                            { q: 'A book costs 25 dollars. A pen costs 5 dollars. How much more is the book?', display: '🧮', a: ['20', 'twenty'] },
+                            { q: 'Sarah has 30 marbles. She gives half to her brother. How many does she keep?', display: '🧮', a: ['15', 'fifteen'] },
+                            { q: 'If 7 times 8 equals 56, then 56 divided by 7 equals?', display: '🧮', a: ['8', 'eight'] },
+                            { q: 'There are 100 students in a school. 40 are in grade 1, 35 in grade 2. How many are in other grades?', display: '🧮', a: ['25', 'twenty five'] }
+                        ]
+                    }
+                },
+                'storycomprehension': {
+                    name: '📖 Story Listening',
+                    description: 'Listen to stories and answer questions!',
+                    questions: {
+                        easy: [
+                            { q: 'I tell a story: Tom has a red ball. He throws the ball. Where is the ball now? In the air or on the ground?', display: '📖', a: ['air', 'in the air'] },
+                            { q: 'Story: A cat is sleeping. Suddenly a dog barks. What does the cat do? Wakes up or keeps sleeping?', display: '📖', a: ['wakes', 'up', 'wakes up'] },
+                            { q: 'Story: It is raining. A girl opens an umbrella. Does she get wet? Yes or No?', display: '📖', a: ['no'] },
+                            { q: 'Story: A boy is hungry. His mom gives him bread. Does the boy eat? Yes or No?', display: '📖', a: ['yes'] },
+                            { q: 'Story: A butterfly lands on a flower. Is the butterfly happy? Yes or No?', display: '📖', a: ['yes'] }
+                        ],
+                        medium: [
+                            { q: 'Story: Alex goes to the store to buy milk. But the store is closed. What will Alex do? Go home or wait?', display: '📖', a: ['home', 'go home'] },
+                            { q: 'Story: There is a birthday party. 10 children come. 3 leave early. How many children are still there?', display: '📖', a: ['7', 'seven'] },
+                            { q: 'Story: Sarah loves playing with toys. Her friend asks if she wants to play. Will she say yes? Yes or No?', display: '📖', a: ['yes'] },
+                            { q: 'Story: A farmer plants seeds. After days, flowers grow. Is he happy? Yes or No?', display: '📖', a: ['yes'] },
+                            { q: 'Story: A child studies hard for a test. Does the child pass the test? Yes or No?', display: '📖', a: ['yes'] }
+                        ],
+                        hard: [
+                            { q: 'Story: A wise owl helps lost animals find their home. What is the owls job? Helper or teacher?', display: '📖', a: ['helper'] },
+                            { q: 'Story: Two friends argue about a toy. Then they decide to share. Are they happy now? Yes or No?', display: '📖', a: ['yes'] },
+                            { q: 'Story: A girl dreams of being a doctor. She studies science and helps people. Will her dream come true? Yes or No?', display: '📖', a: ['yes'] },
+                            { q: 'Story: A king rules his kingdom. The people are happy and safe. Is the king good? Yes or No?', display: '📖', a: ['yes'] },
+                            { q: 'Story: A traveler visits new places and learns new things. Does he become wise? Yes or No?', display: '📖', a: ['yes'] }
+                        ]
+                    }
+                }
+            };
+            
+            const activity = activities[activityId];
+            if (!activity) return;
+            
+            const questions = activity.questions[difficulty] || activity.questions.easy;
+            
+            let html = `
+                <style>
+                    @keyframes slideIn {
+                        from {
+                            opacity: 0;
+                            transform: translateY(20px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+                    
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    
+                    #questionContainer {
+                        animation: slideIn 0.5s ease-out;
+                    }
+                </style>
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px;" role="main" aria-label="Learning Activity">
+                    <div style="background: white; border-radius: 20px; padding: 40px; max-width: 700px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; max-height: 90vh; overflow-y: auto;">
+                        <h1 style="color: #667eea; margin-bottom: 10px; font-size: 1.8em;" aria-label="Activity: ${activity.name}">${activity.name}</h1>
+                        <p style="color: #666; margin-bottom: 20px; font-size: 0.9em;">${activity.description}</p>
+                        
+                        <!-- Progress Bar -->
+                        <div style="background: #e0e0e0; height: 8px; border-radius: 10px; margin-bottom: 25px; overflow: hidden;" role="progressbar" aria-label="Progress" aria-valuenow="1" aria-valuemin="0" aria-valuemax="${questions.length}">
+                            <div id="progressBar" style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                        </div>
+                        
+                        <!-- Question Container -->
+                        <div id="questionContainer" style="background: linear-gradient(135deg, #f0f4ff 0%, #e8eef7 100%); padding: 30px; border-radius: 15px; margin: 20px 0;">
+                            <p style="color: #667eea; font-size: 0.85em; margin-bottom: 15px; font-weight: 600;">
+                                ❓ Question <span id="qNum">1</span> of ${questions.length}
+                            </p>
+                            <p style="color: #333; font-size: 1.3em; font-weight: 600; margin-bottom: 25px;" id="questionText" role="heading" aria-level="2">
+                                ${questions[0].q}
+                            </p>
+                            <div style="font-size: 4em; margin: 25px 0; animation: fadeIn 0.8s ease;" id="displayItem" aria-hidden="true">
+                                ${questions[0].display}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; justify-content: center;">
+                            <button id="speakBtn" onclick="speakQuestion()" aria-label="Hear the question again" style="padding: 12px 20px; background: #2196F3; color: white; border: none; border-radius: 8px; font-size: 0.95em; font-weight: bold; cursor: pointer; transition: all 0.2s;" onmouseover="if(!this.disabled) this.style.background='#1976D2';" onmouseout="if(!this.disabled) this.style.background='#2196F3';">
+                                🔊 Hear Again
+                            </button>
+                            <button id="recordBtn" onclick="startVoiceRecord()" aria-label="Click to start recording your answer" style="padding: 12px 20px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 0.95em; font-weight: bold; cursor: pointer; transition: all 0.2s;" onmouseover="if(!this.disabled) this.style.background='#45a049';" onmouseout="if(!this.disabled) this.style.background='#4CAF50';">
+                                🎤 Record Answer
+                            </button>
+                        </div>
+                        
+                        <button id="exitBtn" type="button" onclick="exitActivity()" aria-label="Exit this activity and return to dashboard" style="width: 100%; padding: 12px; background: #f44336; color: white; border: none; border-radius: 8px; font-size: 0.95em; font-weight: bold; cursor: pointer; transition: all 0.2s; margin-top: 10px;" onmouseover="this.style.background='#da190b';" onmouseout="this.style.background='#f44336';" onmousedown="this.style.transform='scale(0.98)';" onmouseup="this.style.transform='scale(1)';">
+                            ❌ Exit Activity
+                        </button>
+                        
+                        <div id="voiceStatus" style="margin-top: 20px; color: #666; font-size: 0.9em; min-height: 50px;" role="status" aria-live="polite" aria-atomic="true">
+                            <div style="background: #e3f2fd; border: 2px solid #2196F3; border-radius: 8px; padding: 12px; color: #1976d2; font-weight: 500;">
+                                <p style="margin: 0;">👂 Listening... Ready when you are!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.innerHTML = html;
+            window.currentQuestion = questions[0];
+            window.allQuestions = questions;
+            window.currentQuestionIndex = 0;
+            
+            // Initialize progress bar (1 of N)
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) {
+                progressBar.style.width = (1 / questions.length) * 100 + '%';
+            }
+            
+            // Auto-speak first question
+            setTimeout(() => speakQuestion(), 800);
+        }
+
+        // Speak the current question
+        async function speakQuestion() {
+            console.log('Speak button clicked');
+            const speakBtn = document.getElementById('speakBtn');
+            if (speakBtn && speakBtn.disabled) {
+                console.log('Speak button is disabled, ignoring click');
+                return;
+            }
+            if (!window.allQuestions || window.currentQuestionIndex === undefined) {
+                console.error('Questions not loaded');
+                return;
+            }
+            const question = window.allQuestions[window.currentQuestionIndex];
+            console.log('Speaking question:', question.q);
+            await speak(question.q);
+        }
+
+        // Start voice recording
+        function startVoiceRecord() {
+            console.log('Record button clicked');
+            const recordBtn = document.getElementById('recordBtn');
+            if (recordBtn && recordBtn.disabled) {
+                console.log('Record button is disabled, ignoring click');
+                return;
+            }
+            console.log('Starting voice record...');
+            userTranscript = '';
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error('Error starting recognition:', e);
+            }
+        }
+
+        // Automatically check answer when recording ends
+        async function checkAnswerAutomatically() {
+            if (!window.allQuestions || window.currentQuestionIndex === undefined) {
+                console.error('Questions not loaded');
+                return;
+            }
+            
+            const question = window.allQuestions[window.currentQuestionIndex];
+            const answer = userTranscript.trim().toLowerCase();
+            
+            console.log('Checking answer for Q:', window.currentQuestionIndex + 1);
+            console.log('Student said:', answer);
+            console.log('Expected:', question.a);
+            
+            if (!answer) {
+                console.log('Empty answer, waiting for input');
+                return;
+            }
+            
+            const isCorrect = question.a.some(alt => 
+                answer.includes(alt.toLowerCase()) || alt.toLowerCase().includes(answer)
+            );
+            
+            const statusDiv = document.getElementById('voiceStatus');
+            
+            // Disable buttons during processing
+            const recordBtn = document.getElementById('recordBtn');
+            const listenBtn = document.getElementById('speakBtn');
+            if (recordBtn) recordBtn.disabled = true;
+            if (listenBtn) listenBtn.disabled = true;
+            
+            if (isCorrect) {
+                console.log('✅ CORRECT!');
+                stats.correctAnswers++;
+                stats.totalXP += 10;
+                stats.streak++;
+                
+                // Track difficulty-specific stats
+                if (window.currentDifficulty === 'easy') {
+                    stats.easyCorrect = (stats.easyCorrect || 0) + 1;
+                    stats.easyTotal = (stats.easyTotal || 0) + 1;
+                } else if (window.currentDifficulty === 'medium') {
+                    stats.mediumCorrect = (stats.mediumCorrect || 0) + 1;
+                    stats.mediumTotal = (stats.mediumTotal || 0) + 1;
+                } else if (window.currentDifficulty === 'hard') {
+                    stats.hardCorrect = (stats.hardCorrect || 0) + 1;
+                    stats.hardTotal = (stats.hardTotal || 0) + 1;
+                }
+                
+                if (statusDiv) {
+                    statusDiv.innerHTML = `
+                        <div style="background: #d4edda; border: 2px solid #28a745; border-radius: 8px; padding: 15px;">
+                            <p style="color: #155724; font-weight: bold; margin: 0; font-size: 1.1em;">✅ Correct! +10 XP</p>
+                            <p style="color: #155724; margin: 5px 0 0 0;">You said: "${answer}"</p>
+                            <button id="nextQuestionBtn" type="button" onclick="moveToNextQuestionManual()" style="display: block; width: 100%; padding: 10px; margin-top: 12px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 1em;" onmouseover="this.style.background='#218838';" onmouseout="this.style.background='#28a745';">➡️ Next Question</button>
+                        </div>
+                    `;
+                }
+                
+                // Encouraging feedback for correct answers
+                const correctFeedback = [
+                    'Excellent! That is correct!',
+                    'Perfect! You got it right!',
+                    'Amazing! Well done!',
+                    'Fantastic! That is correct!',
+                    'Outstanding! Great job!',
+                    'Wonderful! You nailed it!',
+                    'Awesome! That is right!'
+                ];
+                const randomCorrect = correctFeedback[Math.floor(Math.random() * correctFeedback.length)];
+                await speak(randomCorrect);
+                
+                stats.totalAttempts++;
+                saveStats();
+                
+                console.log('Auto-moving to next question in 1 second...');
+                console.log('Current question index:', window.currentQuestionIndex);
+                console.log('Total questions:', window.allQuestions.length);
+                
+                // Auto-move after 1 second (store timeout ID so we can cancel if needed)
+                window.autoMoveTimeout = setTimeout(() => {
+                    console.log('⏱️ AUTO-MOVE TRIGGERED');
+                    console.log('Moving from Q' + (window.currentQuestionIndex + 1) + ' to next');
+                    if (window.currentQuestionIndex < window.allQuestions.length - 1) {
+                        console.log('Moving to next question...');
+                        moveToNextQuestion();
+                    } else {
+                        console.log('All questions done!');
+                        completeActivity();
+                    }
+                }, 1000);
+                
+            } else {
+                console.log('❌ INCORRECT');
+                stats.streak = 0;
+                
+                // Track difficulty-specific stats
+                if (window.currentDifficulty === 'easy') {
+                    stats.easyTotal = (stats.easyTotal || 0) + 1;
+                } else if (window.currentDifficulty === 'medium') {
+                    stats.mediumTotal = (stats.mediumTotal || 0) + 1;
+                } else if (window.currentDifficulty === 'hard') {
+                    stats.hardTotal = (stats.hardTotal || 0) + 1;
+                }
+                
+                // No visual feedback - just show Try Again button
+                if (statusDiv) {
+                    statusDiv.innerHTML = `
+                        <button id="tryAgainBtn" type="button" onclick="retryQuestion()" style="display: block; width: 100%; padding: 10px; margin-top: 10px; background: #FF9800; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 1em;" onmouseover="this.style.background='#e68900';" onmouseout="this.style.background='#FF9800';">🎤 Try Again</button>
+                    `;
+                }
+                
+                // Encouraging feedback for incorrect answers
+                const incorrectFeedback = [
+                    'Not quite right. Please try again!',
+                    'Keep trying! You can do it!',
+                    'That was not correct. Give it another try!',
+                    'Let us try once more. You will get it!',
+                    'Not this time. Try again, you are doing great!',
+                    'Almost there! Give it another shot!',
+                    'Keep going! Try again!'
+                ];
+                const randomIncorrect = incorrectFeedback[Math.floor(Math.random() * incorrectFeedback.length)];
+                await speak(randomIncorrect);
+                
+                stats.totalAttempts++;
+                saveStats();
+                
+                // Re-enable buttons after a delay
+                setTimeout(() => {
+                    if (recordBtn) {
+                        recordBtn.disabled = false;
+                        recordBtn.style.opacity = '1';
+                        recordBtn.style.cursor = 'pointer';
+                    }
+                    if (listenBtn) {
+                        listenBtn.disabled = false;
+                        listenBtn.style.opacity = '1';
+                        listenBtn.style.cursor = 'pointer';
+                    }
+                }, 300);
+            }
+        }
+
+        // Retry current question
+        function retryQuestion() {
+            console.log('Retrying question...');
+            userTranscript = '';
+            
+            // Force enable buttons
+            const recordBtn = document.getElementById('recordBtn');
+            const listenBtn = document.getElementById('speakBtn');
+            if (recordBtn) {
+                recordBtn.disabled = false;
+                recordBtn.style.opacity = '1';
+                recordBtn.style.cursor = 'pointer';
+            }
+            if (listenBtn) {
+                listenBtn.disabled = false;
+                listenBtn.style.opacity = '1';
+                listenBtn.style.cursor = 'pointer';
+            }
+            
+            // Clear previous feedback
+            const statusDiv = document.getElementById('voiceStatus');
+            if (statusDiv) {
+                statusDiv.innerHTML = `
+                    <div style="background: #e3f2fd; border: 2px solid #2196F3; border-radius: 8px; padding: 12px; color: #1976d2; font-weight: 500;">
+                        <p style="margin: 0;">👂 Ready! Click "Record Answer"</p>
+                    </div>
+                `;
+            }
+            
+            // Start recording after ensuring buttons are enabled
+            setTimeout(() => {
+                startVoiceRecord();
+            }, 100);
+        }
+
+        // Move to next question
+        // Manual next question (clears auto-timeout)
+        function moveToNextQuestionManual() {
+            console.log('User clicked Next Question button');
+            // Clear the auto-move timeout if it exists
+            if (window.autoMoveTimeout) {
+                clearTimeout(window.autoMoveTimeout);
+                window.autoMoveTimeout = null;
+            }
+            // Move to next question
+            moveToNextQuestion();
+        }
+
+        function moveToNextQuestion() {
+            window.currentQuestionIndex++;
+            console.log('Now on question:', window.currentQuestionIndex + 1);
+            
+            // Re-enable buttons immediately
+            const recordBtn = document.getElementById('recordBtn');
+            const listenBtn = document.getElementById('speakBtn');
+            if (recordBtn) recordBtn.disabled = false;
+            if (listenBtn) listenBtn.disabled = false;
+            
+            if (window.currentQuestionIndex < window.allQuestions.length) {
+                const q = window.allQuestions[window.currentQuestionIndex];
+                
+                // Update question text and display
+                document.getElementById('qNum').textContent = window.currentQuestionIndex + 1;
+                document.getElementById('questionText').textContent = q.q;
+                document.getElementById('displayItem').textContent = q.display;
+                
+                // Update progress bar
+                const progress = ((window.currentQuestionIndex + 1) / window.allQuestions.length) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+                
+                // Clear previous feedback
+                document.getElementById('voiceStatus').innerHTML = `
+                    <div style="background: #e3f2fd; border: 2px solid #2196F3; border-radius: 8px; padding: 12px; color: #1976d2; font-weight: 500;">
+                        <p style="margin: 0;">👂 Ready! Click "Record Answer"</p>
+                    </div>
+                `;
+                
+                // Reset
+                userTranscript = '';
+                
+                // Speak the new question
+                setTimeout(() => {
+                    console.log('Speaking Q' + (window.currentQuestionIndex + 1));
+                    speakQuestion();
+                }, 400);
+            }
+        }
+
+        // Save session to history
+        function saveSessionHistory(activityId, difficulty, correct, total) {
+            let sessionHistory = localStorage.getItem('sessionHistory');
+            let sessions = sessionHistory ? JSON.parse(sessionHistory) : [];
+            
+            sessions.push({
+                activity: activityId,
+                difficulty: difficulty,
+                correct: correct,
+                total: total,
+                timestamp: new Date().toISOString(),
+                duration: Math.round((Date.now() - (sessionStartTime || Date.now())) / 1000)
+            });
+            
+            // Keep only last 100 sessions
+            if (sessions.length > 100) {
+                sessions = sessions.slice(-100);
+            }
+            
+            localStorage.setItem('sessionHistory', JSON.stringify(sessions));
+            console.log('Session saved:', sessions[sessions.length - 1]);
+        }
+
+        // Save activity-specific stats
+        function saveActivityStats(activityId, correct, total) {
+            let activityStats = localStorage.getItem('activityStats');
+            let activities = activityStats ? JSON.parse(activityStats) : {};
+            
+            if (!activities[activityId]) {
+                activities[activityId] = { correct: 0, total: 0 };
+            }
+            
+            activities[activityId].correct += correct;
+            activities[activityId].total += total;
+            
+            localStorage.setItem('activityStats', JSON.stringify(activities));
+            console.log('Activity stats saved:', activities[activityId]);
+        }
+
+        // Complete activity
+        function completeActivity() {
+            const fixedContainer = document.querySelector('div[style*="position: fixed"]');
+            if (!fixedContainer) return;
+            
+            const totalQuestions = window.allQuestions.length;
+            const accuracy = stats.totalAttempts > 0 ? Math.round((stats.correctAnswers / stats.totalAttempts) * 100) : 0;
+            
+            // Save activity performance stats
+            const activityId = window.currentActivityId || 'unknown';
+            saveActivityStats(activityId, stats.correctAnswers, stats.totalAttempts);
+            console.log(`✅ Activity ${activityId} stats saved: ${stats.correctAnswers}/${stats.totalAttempts}`);
+            
+            let message = `<strong style="color: #667eea; font-size: 1.3em;">🎉 Activity Complete!</strong><br><br>`;
+            message += `<strong>Total Questions:</strong> ${totalQuestions}<br>`;
+            message += `<strong>Correct Answers:</strong> ${stats.correctAnswers}/${stats.totalAttempts}<br>`;
+            message += `<strong>Accuracy:</strong> ${accuracy}%<br>`;
+            message += `<strong>XP Earned:</strong> +${stats.totalXP}<br><br>`;
+            
+            if (accuracy >= 80) {
+                message += '<strong style="color: #4CAF50; font-size: 1.1em;">⭐ Excellent work!</strong>';
+            } else if (accuracy >= 60) {
+                message += '<strong style="color: #FF9800; font-size: 1.1em;">👍 Good job! Keep practicing!</strong>';
+            } else {
+                message += '<strong style="color: #f44336; font-size: 1.1em;">💪 Keep trying! You will improve!</strong>';
+            }
+            
+            fixedContainer.innerHTML = `
+                <div style="background: white; border-radius: 20px; padding: 40px; max-width: 700px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center;">
+                    <div style="background: linear-gradient(135deg, #f0f4ff 0%, #e8eef7 100%); padding: 40px; border-radius: 15px; margin: 20px 0;">
+                        ${message}
+                    </div>
+                    <button onclick="exitActivity()" style="width: 100%; padding: 15px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 15px;">
+                        ✓ Back to Dashboard
+                    </button>
+                </div>
+            `;
+        }
+
+        // Exit activity
+        function exitActivity() {
+            console.log('Exit button clicked!');
+            try {
+                stats.activitiesDone++;
+                saveStats();
+                console.log('Reloading page...');
+                // Make sure exit button is never disabled
+                const exitBtn = document.getElementById('exitBtn');
+                if (exitBtn) {
+                    exitBtn.disabled = false;
+                    exitBtn.style.pointerEvents = 'auto';
+                }
+                // Use setTimeout to ensure clean reload
+                setTimeout(() => {
+                    window.location.href = window.location.href;
+                }, 100);
+            } catch (error) {
+                console.error('Error in exitActivity:', error);
+                // Force reload even if stats fail
+                window.location.href = window.location.href;
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            console.log('🟢 Page loaded!');
+            console.log('✅ setDifficulty function exists:', typeof setDifficulty);
+            console.log('✅ startActivity function exists:', typeof startActivity);
+            loadStats();
+            const saved = localStorage.getItem('selectedDifficulty');
+            if (saved) {
+                console.log('Restoring difficulty:', saved);
+                setDifficulty(saved);
+            }
+            
+            // Show adaptive difficulty suggestion
+            showAdaptiveSuggestion();
+        });
+        
+        // Show adaptive difficulty suggestion based on performance
+        function showAdaptiveSuggestion() {
+            const adaptiveData = JSON.parse(localStorage.getItem('adaptiveData') || '{}');
+            const suggestedDifficulty = adaptiveData.suggestedDifficulty;
+            
+            if (suggestedDifficulty) {
+                const suggestionBox = document.getElementById('suggestedDifficulty');
+                const suggestionText = document.getElementById('suggestionText');
+                
+                let emoji = '🟢';
+                let text = 'Easy';
+                
+                if (suggestedDifficulty === 'medium') {
+                    emoji = '🟡';
+                    text = 'Medium';
+                } else if (suggestedDifficulty === 'hard') {
+                    emoji = '🔴';
+                    text = 'Hard';
+                }
+                
+                suggestionText.innerHTML = `${emoji} <strong>${text}</strong>`;
+                suggestionBox.style.display = 'block';
+            }
+        }
+    </script>
+    
+    <style>
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+    </style>
+</body>
+</html>

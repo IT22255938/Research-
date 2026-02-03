@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Button Click Test</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+        }
+        .easy { background: #4CAF50; }
+        .medium { background: #FF9800; }
+        .hard { background: #f44336; }
+        #status {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Buttons</h1>
+    
+    <button class="easy" onclick="alert('Easy clicked')">🟢 Easy (inline onclick)</button>
+    <button class="medium" onclick="setLevel('medium')">🟡 Medium (function call)</button>
+    <button class="hard" id="hardBtn">🔴 Hard (addEventListener)</button>
+    
+    <div id="status">Click a button...</div>
+    
+    <script>
+        function setLevel(level) {
+            document.getElementById('status').textContent = '✅ ' + level + ' selected!';
+        }
+        
+        document.getElementById('hardBtn').onclick = function() {
+            document.getElementById('status').textContent = '✅ Hard selected!';
+        };
+    </script>
+</body>
+</html>

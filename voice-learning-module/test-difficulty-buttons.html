@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Difficulty Buttons</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        button {
+            padding: 12px 24px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: bold;
+            color: white;
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        #easyBtn {
+            background: #4CAF50;
+        }
+        #mediumBtn {
+            background: #FF9800;
+        }
+        #hardBtn {
+            background: #f44336;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 6px;
+            font-size: 1.1em;
+            min-height: 30px;
+            border-left: 4px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Difficulty Buttons</h1>
+        <p>Click any button below to test:</p>
+        
+        <button id="easyBtn">🟢 Easy</button>
+        <button id="mediumBtn">🟡 Medium</button>
+        <button id="hardBtn">🔴 Hard</button>
+        
+        <div id="result">
+            Click a button above...
+        </div>
+    </div>
+
+    <script>
+        // Method 1: Direct onclick assignment
+        document.getElementById('easyBtn').onclick = function() {
+            document.getElementById('result').innerHTML = '✅ Easy selected! <br> window.currentDifficulty = "easy"';
+            window.currentDifficulty = 'easy';
+            console.log('Easy clicked');
+        };
+
+        document.getElementById('mediumBtn').onclick = function() {
+            document.getElementById('result').innerHTML = '✅ Medium selected! <br> window.currentDifficulty = "medium"';
+            window.currentDifficulty = 'medium';
+            console.log('Medium clicked');
+        };
+
+        document.getElementById('hardBtn').onclick = function() {
+            document.getElementById('result').innerHTML = '✅ Hard selected! <br> window.currentDifficulty = "hard"';
+            window.currentDifficulty = 'hard';
+            console.log('Hard clicked');
+        };
+
+        console.log('Button listeners attached');
+    </script>
+</body>
+</html>

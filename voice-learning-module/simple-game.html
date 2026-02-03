@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Learning - Simple Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        button {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            width: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(0px);
+        }
+        
+        .difficulty-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .difficulty-btn.easy {
+            background: #4CAF50;
+        }
+        
+        .difficulty-btn.medium {
+            background: #FF9800;
+        }
+        
+        .difficulty-btn.hard {
+            background: #f44336;
+        }
+        
+        .activity-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            font-size: 1.1em;
+        }
+        
+        .activity-emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            color: #1976d2;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            color: #856404;
+            margin-top: 20px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Voice Learning</h1>
+        <p class="subtitle">Learn with voice recognition!</p>
+        
+        <div id="statusDiv" class="status" style="display: none;"></div>
+        
+        <!-- Difficulty Selection -->
+        <div class="section">
+            <div class="section-title">📍 Step 1: Select Difficulty</div>
+            <div class="button-grid">
+                <button class="difficulty-btn easy" onclick="setDifficulty('easy')">🟢 Easy</button>
+                <button class="difficulty-btn medium" onclick="setDifficulty('medium')">🟡 Medium</button>
+                <button class="difficulty-btn hard" onclick="setDifficulty('hard')">🔴 Hard</button>
+            </div>
+        </div>
+        
+        <!-- Activity Selection -->
+        <div class="section">
+            <div class="section-title">📚 Step 2: Choose Activity</div>
+            <div class="button-grid">
+                <button class="activity-btn" onclick="startActivity('counting')"><span class="activity-emoji">🔢</span>Counting Adventure</button>
+                <button class="activity-btn" onclick="startActivity('numbers')"><span class="activity-emoji">🎯</span>Number Recognition</button>
+                <button class="activity-btn" onclick="startActivity('math')"><span class="activity-emoji">➕</span>Basic Math</button>
+                <button class="activity-btn" onclick="startActivity('alphabet')"><span class="activity-emoji">🔤</span>Alphabet Learning</button>
+                <button class="activity-btn" onclick="startActivity('colors')"><span class="activity-emoji">🎨</span>Colors & Shapes</button>
+                <button class="activity-btn" onclick="startActivity('phonics')"><span class="activity-emoji">🔊</span>Phonics Sounds</button>
+                <button class="activity-btn" onclick="startActivity('time')"><span class="activity-emoji">🕐</span>Time Telling</button>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <strong>💡 How to use:</strong><br>
+            1. Click a difficulty level (Easy/Medium/Hard)<br>
+            2. Click an activity to start<br>
+            3. Click 🎤 to speak your answer<br>
+            4. Wait for feedback
+        </div>
+    </div>
+    
+    <script>
+        // Global state
+        let selectedDifficulty = null;
+        
+        // Set difficulty
+        function setDifficulty(level) {
+            selectedDifficulty = level;
+            const statusDiv = document.getElementById('statusDiv');
+            const levelEmoji = level === 'easy' ? '🟢' : level === 'medium' ? '🟡' : '🔴';
+            const levelText = level.charAt(0).toUpperCase() + level.slice(1);
+            
+            statusDiv.textContent = `✅ ${levelEmoji} ${levelText} Mode Selected`;
+            statusDiv.style.display = 'block';
+            
+            console.log('Difficulty set to:', level);
+            window.currentDifficulty = level;
+            localStorage.setItem('selectedDifficulty', level);
+        }
+        
+        // Start activity
+        function startActivity(activityId) {
+            if (!selectedDifficulty) {
+                alert('⚠️ Please select a difficulty level first!');
+                return;
+            }
+            
+            console.log('Starting activity:', activityId, 'with difficulty:', selectedDifficulty);
+            
+            // Store activity info
+            localStorage.setItem('currentActivity', activityId);
+            localStorage.setItem('currentDifficulty', selectedDifficulty);
+            
+            // Show loading message
+            const statusDiv = document.getElementById('statusDiv');
+            statusDiv.textContent = '⏳ Loading activity... Please wait...';
+            statusDiv.style.display = 'block';
+            
+            // Simulate activity loading with delay
+            setTimeout(function() {
+                loadActivityPage(activityId, selectedDifficulty);
+            }, 500);
+        }
+        
+        // Load activity page
+        function loadActivityPage(activityId, difficulty) {
+            const activities = {
+                'counting': {
+                    name: 'Counting Adventure 🔢',
+                    questions: {
+                        easy: [
+                            { q: 'Count: 1 plus 1 equals?', a: ['2', 'two'] },
+                            { q: 'How many apples? 2 plus 2 equals?', a: ['4', 'four'] },
+                            { q: 'How many oranges? 3 plus 1 equals?', a: ['4', 'four'] }
+                        ],
+                        medium: [
+                            { q: 'How many in a group of 3 plus 2 more?', a: ['5', 'five'] },
+                            { q: 'If you have 4 bananas and add 3 more, how many?', a: ['7', 'seven'] },
+                            { q: 'Count: 2 plus 6 equals?', a: ['8', 'eight'] }
+                        ],
+                        hard: [
+                            { q: 'How many items total? 5 plus 7 equals?', a: ['12', 'twelve'] },
+                            { q: 'A basket has 8 red and 9 blue. How many total?', a: ['17', 'seventeen'] },
+                            { q: 'You have 6 pencils and get 8 more. How many now?', a: ['14', 'fourteen'] }
+                        ]
+                    }
+                },
+                'numbers': {
+                    name: 'Number Recognition 🎯',
+                    questions: {
+                        easy: [
+                            { q: 'What number comes after 2?', a: ['3', 'three'] },
+                            { q: 'What number comes after 5?', a: ['6', 'six'] },
+                            { q: 'What number comes after 8?', a: ['9', 'nine'] }
+                        ],
+                        medium: [
+                            { q: 'What number comes after 7?', a: ['8', 'eight'] },
+                            { q: 'What number comes before 5?', a: ['4', 'four'] },
+                            { q: 'What number is between 9 and 11?', a: ['10', 'ten'] }
+                        ],
+                        hard: [
+                            { q: 'What number is 5 more than 12?', a: ['17', 'seventeen'] },
+                            { q: 'What number is 3 less than 20?', a: ['17', 'seventeen'] },
+                            { q: 'What number is double of 9?', a: ['18', 'eighteen'] }
+                        ]
+                    }
+                },
+                'math': {
+                    name: 'Basic Math ➕',
+                    questions: {
+                        easy: [
+                            { q: 'What is 1 plus 1?', a: ['2', 'two'] },
+                            { q: 'What is 2 plus 1?', a: ['3', 'three'] },
+                            { q: 'What is 3 plus 2?', a: ['5', 'five'] }
+                        ],
+                        medium: [
+                            { q: 'What is 2 plus 3?', a: ['5', 'five'] },
+                            { q: 'What is 4 plus 2?', a: ['6', 'six'] },
+                            { q: 'What is 3 plus 3?', a: ['6', 'six'] }
+                        ],
+                        hard: [
+                            { q: 'What is 12 plus 8?', a: ['20', 'twenty'] },
+                            { q: 'What is 15 plus 7?', a: ['22', 'twenty two'] },
+                            { q: 'What is 18 plus 6?', a: ['24', 'twenty four'] }
+                        ]
+                    }
+                },
+                'alphabet': {
+                    name: 'Alphabet Learning 🔤',
+                    questions: {
+                        easy: [
+                            { q: 'What is the first letter of the alphabet?', a: ['a', 'ay'] },
+                            { q: 'What is the second letter?', a: ['b', 'bee'] },
+                            { q: 'What is the third letter?', a: ['c', 'see'] }
+                        ],
+                        medium: [
+                            { q: 'What is the first letter?', a: ['a', 'ay'] },
+                            { q: 'What is the second letter?', a: ['b', 'bee'] },
+                            { q: 'What is the last letter?', a: ['z', 'zee'] }
+                        ],
+                        hard: [
+                            { q: 'What letter comes after M?', a: ['n', 'en'] },
+                            { q: 'What letter comes before T?', a: ['s', 'ess'] },
+                            { q: 'What is the middle letter?', a: ['m', 'em'] }
+                        ]
+                    }
+                },
+                'colors': {
+                    name: 'Colors & Shapes 🎨',
+                    questions: {
+                        easy: [
+                            { q: 'What color are leaves?', a: ['green'] },
+                            { q: 'What color is the sun?', a: ['yellow'] },
+                            { q: 'What color is snow?', a: ['white'] }
+                        ],
+                        medium: [
+                            { q: 'What color is the sky?', a: ['blue'] },
+                            { q: 'What color are grass?', a: ['green'] },
+                            { q: 'What color is fire?', a: ['red'] }
+                        ],
+                        hard: [
+                            { q: 'What color is a purple grape?', a: ['purple'] },
+                            { q: 'What color is an orange?', a: ['orange'] },
+                            { q: 'What color is a pink flamingo?', a: ['pink'] }
+                        ]
+                    }
+                },
+                'phonics': {
+                    name: 'Phonics Sounds 🔊',
+                    questions: {
+                        easy: [
+                            { q: 'What sound does C make at the start of Cat?', a: ['k', 'kuh'] },
+                            { q: 'What sound does B make?', a: ['b', 'buh'] },
+                            { q: 'What sound does D make?', a: ['d', 'duh'] }
+                        ],
+                        medium: [
+                            { q: 'What sound does S make?', a: ['s', 'sss'] },
+                            { q: 'What sound does T make?', a: ['t', 'tuh'] },
+                            { q: 'What sound does N make?', a: ['n', 'nuh'] }
+                        ],
+                        hard: [
+                            { q: 'What sound does TH make?', a: ['th', 'theta'] },
+                            { q: 'What sound does SH make?', a: ['sh'] },
+                            { q: 'What sound does CH make?', a: ['ch'] }
+                        ]
+                    }
+                },
+                'time': {
+                    name: 'Time Telling 🕐',
+                    questions: {
+                        easy: [
+                            { q: 'What time is 3 o clock?', a: ['3', 'three'] },
+                            { q: 'What time is 5 o clock?', a: ['5', 'five'] },
+                            { q: 'What time is noon?', a: ['12', 'twelve'] }
+                        ],
+                        medium: [
+                            { q: 'What time is half past 3?', a: ['3 30', '3:30'] },
+                            { q: 'What time is quarter past 2?', a: ['2 15', '2:15'] },
+                            { q: 'How many seconds in a minute?', a: ['60', 'sixty'] }
+                        ],
+                        hard: [
+                            { q: 'How many minutes in 2 hours?', a: ['120'] },
+                            { q: 'How many seconds in 5 minutes?', a: ['300'] },
+                            { q: 'How many hours in 2 days?', a: ['48'] }
+                        ]
+                    }
+                }
+            };
+            
+            const activity = activities[activityId];
+            if (!activity) {
+                alert('Activity not found!');
+                return;
+            }
+            
+            const questions = activity.questions[difficulty] || activity.questions.easy;
+            
+            // Create activity HTML
+            let html = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+                    <div style="background: white; border-radius: 20px; padding: 40px; max-width: 600px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center;">
+                        <h1 style="color: #667eea; margin-bottom: 20px; font-size: 1.8em;">${activity.name}</h1>
+                        
+                        <div style="background: #f5f5f5; padding: 20px; border-radius: 12px; margin: 20px 0;">
+                            <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">Question 1 of ${questions.length}</p>
+                            <p style="color: #333; font-size: 1.3em; font-weight: bold;">
+                                ${questions[0].q}
+                            </p>
+                        </div>
+                        
+                        <button onclick="recordVoice()" style="width: 100%; padding: 15px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-bottom: 10px;">
+                            🎤 Click to Record Answer
+                        </button>
+                        
+                        <button onclick="location.reload()" style="width: 100%; padding: 12px; background: #f44336; color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer;">
+                            ❌ Exit Activity
+                        </button>
+                        
+                        <div id="voiceStatus" style="margin-top: 20px; color: #666; font-size: 0.9em;">
+                            <p>Ready! Click the button above to start recording.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.innerHTML = html;
+            
+            // Store current question for voice recording
+            window.currentQuestion = questions[0];
+            window.allQuestions = questions;
+            window.currentQuestionIndex = 0;
+            
+            console.log('Activity loaded:', activity.name);
+        }
+        
+        // Record voice
+        function recordVoice() {
+            const statusDiv = document.getElementById('voiceStatus');
+            statusDiv.innerHTML = '<p style="color: #2196F3; font-weight: bold;">🎤 Recording... Speak now!</p>';
+            
+            // Simulate voice recording
+            setTimeout(function() {
+                const answer = prompt('📝 Simulated voice input - What did you say? (for testing)');
+                
+                if (answer) {
+                    const expected = window.currentQuestion.a;
+                    const isCorrect = expected.some(exp => answer.toLowerCase().includes(exp.toLowerCase()));
+                    
+                    if (isCorrect) {
+                        statusDiv.innerHTML = '<p style="color: #4CAF50; font-weight: bold;">✅ Correct! Great job!</p>';
+                    } else {
+                        statusDiv.innerHTML = '<p style="color: #f44336; font-weight: bold;">❌ Not quite right. Try again or skip.</p>';
+                    }
+                }
+            }, 500);
+        }
+        
+        // On page load, restore difficulty if exists
+        window.onload = function() {
+            const saved = localStorage.getItem('selectedDifficulty');
+            if (saved) {
+                selectedDifficulty = saved;
+                const statusDiv = document.getElementById('statusDiv');
+                const levelEmoji = saved === 'easy' ? '🟢' : saved === 'medium' ? '🟡' : '🔴';
+                const levelText = saved.charAt(0).toUpperCase() + saved.slice(1);
+                statusDiv.textContent = `✅ ${levelEmoji} ${levelText} Mode Selected`;
+                statusDiv.style.display = 'block';
+            }
+        };
+    </script>
+</body>
+</html>

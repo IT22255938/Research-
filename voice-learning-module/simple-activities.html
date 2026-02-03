@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Activity Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .activity-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .desc {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        .button:hover {
+            transform: scale(1.05);
+        }
+        
+        .status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
+        
+        .status.loading {
+            color: #667eea;
+        }
+        
+        .status.error {
+            color: #f44336;
+        }
+        
+        .status.success {
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Learning Activities</h1>
+        
+        <div class="activity-grid" id="activityGrid">
+            <!-- Activities will be loaded here -->
+        </div>
+    </div>
+    
+    <div class="status loading" id="status">Loading activities...</div>
+
+    <script type="module">
+        const status = document.getElementById('status');
+        const grid = document.getElementById('activityGrid');
+        
+        // Activities to load
+        const activities = [
+            { id: 'counting-adventure', name: '🧮 Counting Adventure', desc: 'Learn to count' },
+            { id: 'number-recognition', name: '🔢 Number Recognition', desc: 'Identify numbers' },
+            { id: 'basic-math', name: '➕ Basic Math', desc: 'Simple arithmetic' },
+            { id: 'alphabet-learning', name: '🔤 Alphabet Learning', desc: 'Letter recognition' },
+            { id: 'colors-and-shapes', name: '🎨 Colors & Shapes', desc: 'Colors and shapes' },
+            { id: 'phonics-and-sounds', name: '🔊 Phonics Sounds', desc: 'Letter sounds' },
+            { id: 'time-telling', name: '⏰ Time Telling', desc: 'Learn to tell time' }
+        ];
+        
+        // Create activity cards
+        activities.forEach(activity => {
+            const [emoji, ...rest] = activity.name.split(' ');
+            const name = rest.join(' ');
+            
+            const card = document.createElement('div');
+            card.className = 'activity-card';
+            card.innerHTML = `
+                <div class="icon">${emoji}</div>
+                <div class="name">${name}</div>
+                <div class="desc">${activity.desc}</div>
+                <button class="button" onclick="startActivity('${activity.id}')">Start Activity</button>
+            `;
+            grid.appendChild(card);
+        });
+        
+        // Global start activity function
+        window.startActivity = async function(activityId) {
+            try {
+                status.textContent = '⏳ Starting activity...';
+                status.className = 'status loading';
+                
+                // Store student ID
+                if (!localStorage.getItem('studentId')) {
+                    localStorage.setItem('studentId', 'student_' + Math.random().toString(36).substr(2, 9));
+                }
+                
+                // Import the activity launcher
+                const { initializeActivity } = await import('./src/activities/activity-launcher.js');
+                
+                const studentId = localStorage.getItem('studentId');
+                console.log(`Starting activity: ${activityId} for student: ${studentId}`);
+                
+                // Initialize and start activity
+                const launcher = await initializeActivity(activityId, studentId);
+                
+                console.log('Activity started successfully');
+                status.textContent = '✅ Activity started!';
+                status.className = 'status success';
+                
+                // Show simple question display
+                showActivity(launcher);
+                
+            } catch (error) {
+                console.error('Error starting activity:', error);
+                status.textContent = '❌ Error: ' + error.message;
+                status.className = 'status error';
+                
+                // Still try to show activity locally
+                try {
+                    const { getActivityById } = await import('./src/activities/index.js');
+                    const activity = await getActivityById(activityId);
+                    
+                    if (activity) {
+                        const { ActivityLauncher } = await import('./src/activities/activity-launcher.js');
+                        const studentId = localStorage.getItem('studentId') || 'test_student';
+                        const launcher = new ActivityLauncher(activity, studentId, 1);
+                        
+                        // Create fake session
+                        launcher.sessionId = 'local_' + Date.now();
+                        launcher.startTime = Date.now();
+                        
+                        showActivity(launcher);
+                        status.textContent = '✅ Activity loaded (local mode)';
+                        status.className = 'status success';
+                    }
+                } catch (fallbackError) {
+                    console.error('Fallback also failed:', fallbackError);
+                }
+            }
+        };
+        
+        // Show activity interface
+        window.showActivity = function(launcher) {
+            const question = launcher.getNextQuestion();
+            
+            const html = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 2000; overflow-y: auto;">
+                    <div style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
+                        <div style="background: white; border-radius: 20px; padding: 40px; max-width: 600px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <div style="font-size: 4em; margin-bottom: 20px;">
+                                    ${launcher.activity.story?.character === 'max' ? '🤖' : launcher.activity.story?.character === 'owl' ? '🦉' : launcher.activity.story?.character === 'dragon' ? '🐉' : launcher.activity.story?.character === 'sophie' ? '👧' : '✨'}
+                                </div>
+                                <h1 style="color: #333; margin-bottom: 10px;">${launcher.activity.name}</h1>
+                            </div>
+                            
+                            <div style="background: #f5f5f5; padding: 20px; border-radius: 15px; margin-bottom: 30px;">
+                                <p style="font-size: 1.1em; color: #333; margin-bottom: 15px;"><strong>Question:</strong></p>
+                                <p style="font-size: 1em; color: #666; line-height: 1.6;">${question.narration}</p>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <p style="color: #667; margin-bottom: 10px;">Expected Answer(s):</p>
+                                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                    ${question.expectedAnswers.map(ans => `<span style="background: #e0e0e0; padding: 5px 10px; border-radius: 5px; font-size: 0.9em;">${ans}</span>`).join('')}
+                                </div>
+                            </div>
+                            
+                            ${question.hint ? `
+                                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+                                    <p style="color: #856404;"><strong>💡 Hint:</strong> ${question.hint}</p>
+                                </div>
+                            ` : ''}
+                            
+                            <input type="text" id="answerInput" placeholder="Type your answer..." style="width: 100%; padding: 12px; border: 2px solid #667eea; border-radius: 8px; font-size: 1em; margin-bottom: 15px;">
+                            
+                            <button onclick="checkAnswer()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; margin-bottom: 10px;">✓ Check Answer</button>
+                            
+                            <button onclick="nextQuestion()" style="width: 100%; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; margin-bottom: 10px;">→ Skip Question</button>
+                            
+                            <button onclick="closeActivity()" style="width: 100%; padding: 12px; background: #f44336; color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer;">Exit Activity</button>
+                            
+                            <div id="feedback" style="margin-top: 20px; padding: 15px; border-radius: 8px; display: none; font-weight: bold;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', html);
+            window.currentLauncher = launcher;
+            window.currentQuestion = question;
+            document.getElementById('answerInput').focus();
+        };
+        
+        // Check answer
+        window.checkAnswer = async function() {
+            const launcher = window.currentLauncher;
+            const question = window.currentQuestion;
+            const input = document.getElementById('answerInput');
+            const answer = input.value.trim();
+            
+            if (!answer) {
+                alert('Please enter an answer');
+                return;
+            }
+            
+            try {
+                const result = await launcher.recordResponse(question, answer, 5);
+                
+                const feedback = document.getElementById('feedback');
+                feedback.style.display = 'block';
+                
+                if (result.isCorrect) {
+                    feedback.style.background = '#d4edda';
+                    feedback.style.color = '#155724';
+                    feedback.style.borderLeft = '4px solid #4caf50';
+                    feedback.textContent = `✅ ${result.feedback} +${result.xpEarned} XP`;
+                } else {
+                    feedback.style.background = '#f8d7da';
+                    feedback.style.color = '#721c24';
+                    feedback.style.borderLeft = '4px solid #f44336';
+                    feedback.textContent = `❌ ${result.feedback}`;
+                }
+                
+            } catch (error) {
+                console.error('Error checking answer:', error);
+                const feedback = document.getElementById('feedback');
+                feedback.style.display = 'block';
+                feedback.style.background = '#f8d7da';
+                feedback.style.color = '#721c24';
+                feedback.textContent = `Error: ${error.message}`;
+            }
+        };
+        
+        // Next question
+        window.nextQuestion = function() {
+            const launcher = window.currentLauncher;
+            launcher.currentQuestionIndex++;
+            
+            const overlay = document.querySelector('div[style*="position: fixed"]');
+            if (overlay) overlay.remove();
+            
+            showActivity(launcher);
+        };
+        
+        // Close activity
+        window.closeActivity = function() {
+            const overlay = document.querySelector('div[style*="position: fixed"]');
+            if (overlay) overlay.remove();
+            
+            status.textContent = '✅ Activity closed';
+            status.className = 'status success';
+        };
+        
+        // Hide loading message once page is ready
+        status.textContent = '✅ Ready - Click any activity';
+        status.className = 'status success';
+    </script>
+</body>
+</html>

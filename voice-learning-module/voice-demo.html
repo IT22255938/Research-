@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Integration Demo - Interactive Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .activity-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .character-selector {
+            margin-bottom: 20px;
+        }
+
+        .character-selector label {
+            font-weight: 600;
+            color: #333;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .character-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .char-btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .char-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .char-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .feedback-area {
+            margin: 20px 0;
+            min-height: 100px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .listening-status {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .pulse-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .transcription-text {
+            font-size: 1.3em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .confidence-score {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .error-status {
+            color: #e74c3c;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .status-panel {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-value {
+            color: #666;
+        }
+
+        .emotion-selector {
+            margin-top: 15px;
+        }
+
+        .emotion-selector label {
+            font-weight: 600;
+            color: #333;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .emotion-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .emotion-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .emotion-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .emotion-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .demo-activity {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .question-display {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: #2ecc71;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 Voice Integration Demo</h1>
+        <p class="subtitle">Interactive voice-powered learning experience</p>
+
+        <div class="activity-section">
+            <h2>🎯 Available Features</h2>
+            <ul class="feature-list">
+                <li>Real-time speech recognition with confidence scoring</li>
+                <li>Text-to-speech with 5 character voices</li>
+                <li>6 emotional tone variations (neutral, calm, encouraging, celebratory, excited, gentle)</li>
+                <li>Instant transcription feedback while speaking</li>
+                <li>Automatic answer validation</li>
+                <li>Browser-based, no server required for voice</li>
+            </ul>
+        </div>
+
+        <div class="activity-section">
+            <h2>👥 Select Character</h2>
+            <div class="character-selector">
+                <div class="character-buttons" id="characterButtons">
+                    <button class="char-btn active" data-character="sophie">🧑‍🦰 Sophie</button>
+                    <button class="char-btn" data-character="buddy">🦸 Buddy</button>
+                    <button class="char-btn" data-character="teacher">👨‍🏫 Teacher</button>
+                    <button class="char-btn" data-character="dragon">🐉 Dragon</button>
+                    <button class="char-btn" data-character="fairy">🧚 Fairy</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="activity-section">
+            <h2>😊 Select Emotion</h2>
+            <div class="emotion-selector">
+                <div class="emotion-buttons" id="emotionButtons">
+                    <button class="emotion-btn active" data-emotion="neutral">Neutral</button>
+                    <button class="emotion-btn" data-emotion="calm">Calm</button>
+                    <button class="emotion-btn" data-emotion="encouraging">Encouraging</button>
+                    <button class="emotion-btn" data-emotion="celebratory">Celebratory</button>
+                    <button class="emotion-btn" data-emotion="excited">Excited</button>
+                    <button class="emotion-btn" data-emotion="gentle">Gentle</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="activity-section">
+            <h2>🎮 Interactive Demo</h2>
+            <div class="demo-activity">
+                <p class="question-display" id="questionDisplay">What is 2 + 3?</p>
+                
+                <div class="action-buttons">
+                    <button class="btn-primary" id="askBtn">📢 Ask Question</button>
+                    <button class="btn-success" id="listenBtn">🎤 Listen for Answer</button>
+                    <button class="btn-danger" id="stopBtn">⏹️ Stop</button>
+                </div>
+
+                <div class="feedback-area" id="voiceFeedback">
+                    <p style="color: #999; text-align: center;">Click "Ask Question" to start</p>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="manualInput" placeholder="Or type answer manually..." />
+                    <button class="btn-primary" id="checkBtn">Check Answer</button>
+                </div>
+
+                <div class="status-panel">
+                    <div class="status-item">
+                        <span class="status-label">Current Character:</span>
+                        <span class="status-value" id="statusCharacter">Sophie</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Current Emotion:</span>
+                        <span class="status-value" id="statusEmotion">Neutral</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Voice Support:</span>
+                        <span class="status-value" id="statusSupport">Checking...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Last Transcript:</span>
+                        <span class="status-value" id="statusTranscript">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>💡 How to use:</strong><br>
+            1. Select a character voice<br>
+            2. Choose an emotional tone<br>
+            3. Click "Ask Question" to hear the question<br>
+            4. Click "Listen for Answer" and speak your answer<br>
+            5. Get instant feedback!
+        </div>
+    </div>
+
+    <script type="module">
+        import { VoiceIntegration } from '../src/audio/voice-integration.js';
+
+        let currentCharacter = 'sophie';
+        let currentEmotion = 'neutral';
+        let voiceIntegration = null;
+
+        const questions = [
+            { text: 'What is 2 + 3?', expected: ['5', 'five'] },
+            { text: 'How many sides does a triangle have?', expected: ['3', 'three'] },
+            { text: 'What color is the sky?', expected: ['blue'] },
+            { text: 'Is the sun hot?', expected: ['yes', 'yeah', 'yep'] }
+        ];
+
+        let currentQuestion = questions[0];
+
+        // Initialize voice integration
+        async function initVoice() {
+            try {
+                voiceIntegration = new VoiceIntegration({
+                    defaultCharacter: 'sophie',
+                    enableRealTimeTranscription: true,
+                    enableVisualFeedback: true
+                });
+
+                // Update support status
+                const isSupported = voiceIntegration.isSupported();
+                document.getElementById('statusSupport').textContent = 
+                    isSupported ? '✅ Supported' : '❌ Not Supported';
+
+                if (!isSupported) {
+                    alert('Voice features not fully supported in your browser');
+                }
+
+                // Setup event listeners
+                voiceIntegration.on('transcription-update', (data) => {
+                    console.log('📝 Transcription:', data.text);
+                });
+
+                voiceIntegration.on('transcription-complete', (data) => {
+                    console.log('✅ Final:', data.text, '(' + data.confidence + '%)');
+                });
+
+                voiceIntegration.on('listening-started', () => {
+                    console.log('🎤 Listening...');
+                });
+
+                voiceIntegration.on('error', (error) => {
+                    console.error('❌ Error:', error);
+                });
+
+            } catch (error) {
+                console.error('Failed to initialize voice:', error);
+                document.getElementById('statusSupport').textContent = '❌ Error';
+            }
+        }
+
+        // Character button handlers
+        document.getElementById('characterButtons').addEventListener('click', (e) => {
+            if (e.target.classList.contains('char-btn')) {
+                document.querySelectorAll('.char-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                currentCharacter = e.target.dataset.character;
+                document.getElementById('statusCharacter').textContent = 
+                    e.target.textContent.trim();
+            }
+        });
+
+        // Emotion button handlers
+        document.getElementById('emotionButtons').addEventListener('click', (e) => {
+            if (e.target.classList.contains('emotion-btn')) {
+                document.querySelectorAll('.emotion-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                currentEmotion = e.target.dataset.emotion;
+                document.getElementById('statusEmotion').textContent = 
+                    e.target.textContent.trim();
+            }
+        });
+
+        // Ask Question button
+        document.getElementById('askBtn').addEventListener('click', async () => {
+            if (!voiceIntegration) return;
+
+            currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+            document.getElementById('questionDisplay').textContent = currentQuestion.text;
+
+            try {
+                await voiceIntegration.speakAsCharacter(
+                    currentQuestion.text,
+                    currentCharacter,
+                    'question'
+                );
+            } catch (error) {
+                console.error('Error asking question:', error);
+            }
+        });
+
+        // Listen button
+        document.getElementById('listenBtn').addEventListener('click', async () => {
+            if (!voiceIntegration) return;
+
+            document.getElementById('voiceFeedback').innerHTML = `
+                <div class="listening-status">
+                    <span class="pulse-dot"></span>
+                    <p>🎤 Listening... Speak your answer!</p>
+                </div>
+            `;
+
+            try {
+                const result = await voiceIntegration.listenForResponse({
+                    timeout: 10000
+                });
+
+                document.getElementById('statusTranscript').textContent = result.text;
+
+                // Process the answer
+                const isCorrect = voiceIntegration.validateAnswer(
+                    result.text,
+                    currentQuestion.expected
+                );
+
+                const feedback = isCorrect
+                    ? voiceIntegration.getPositiveFeedback()
+                    : voiceIntegration.getNegativeFeedback(currentQuestion.expected[0]);
+
+                await voiceIntegration.speakAsCharacter(
+                    feedback,
+                    currentCharacter,
+                    isCorrect ? 'correct' : 'incorrect'
+                );
+
+                document.getElementById('voiceFeedback').innerHTML = `
+                    <div class="transcription-text">${result.text}</div>
+                    <div class="confidence-score">Confidence: ${Math.round(result.confidence * 100)}%</div>
+                    <div style="margin-top: 10px; font-weight: 600; color: ${isCorrect ? '#2ecc71' : '#e74c3c'};">
+                        ${isCorrect ? '✅ Correct!' : '❌ Incorrect'}
+                    </div>
+                `;
+
+            } catch (error) {
+                document.getElementById('voiceFeedback').innerHTML = `
+                    <div class="error-status">❌ ${error.message}</div>
+                `;
+            }
+        });
+
+        // Check answer button
+        document.getElementById('checkBtn').addEventListener('click', async () => {
+            if (!voiceIntegration) return;
+
+            const answer = document.getElementById('manualInput').value;
+            if (!answer) return;
+
+            const isCorrect = voiceIntegration.validateAnswer(
+                answer,
+                currentQuestion.expected
+            );
+
+            const feedback = isCorrect
+                ? voiceIntegration.getPositiveFeedback()
+                : voiceIntegration.getNegativeFeedback(currentQuestion.expected[0]);
+
+            await voiceIntegration.speakAsCharacter(
+                feedback,
+                currentCharacter,
+                isCorrect ? 'correct' : 'incorrect'
+            );
+
+            document.getElementById('statusTranscript').textContent = answer;
+            document.getElementById('voiceFeedback').innerHTML = `
+                <div style="margin-top: 10px; font-weight: 600; color: ${isCorrect ? '#2ecc71' : '#e74c3c'};">
+                    ${isCorrect ? '✅ Correct!' : '❌ Incorrect'}<br>
+                    ${feedback}
+                </div>
+            `;
+        });
+
+        // Stop button
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            if (voiceIntegration) {
+                voiceIntegration.stopAll();
+                document.getElementById('voiceFeedback').innerHTML = `
+                    <p style="color: #999; text-align: center;">Stopped</p>
+                `;
+            }
+        });
+
+        // Initialize on load
+        window.addEventListener('load', initVoice);
+    </script>
+</body>
+</html>

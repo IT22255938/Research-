@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Learning Activities - Full Voice I/O System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #764ba2;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #f44336;
+            --info: #2196F3;
+            --light-bg: #f5f7fa;
+            --border-color: #e0e0e0;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+        }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            color: var(--text-light);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .activity-selector {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .activity-selector h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+        
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .activity-btn {
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--light-bg);
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .activity-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .activity-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .activity-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .activity-title {
+            font-size: 2em;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .activity-content {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .question-text {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+        
+        .display-item {
+            font-size: 4em;
+            margin: 30px 0;
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .voice-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        
+        .voice-btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .voice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-listen {
+            background: var(--info);
+            color: white;
+        }
+        
+        .btn-listen:hover:not(:disabled) {
+            background: #1565c0;
+            transform: scale(1.05);
+        }
+        
+        .btn-record {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-record:hover:not(:disabled) {
+            background: #d32f2f;
+            transform: scale(1.05);
+        }
+        
+        .btn-submit {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-submit:hover:not(:disabled) {
+            background: #388e3c;
+            transform: scale(1.05);
+        }
+        
+        .btn-stop {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .recording-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1em;
+            color: var(--danger);
+            font-weight: 600;
+        }
+        
+        .recording-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--danger);
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.3; }
+        }
+        
+        .transcription-box {
+            background: var(--light-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 50px;
+            font-size: 1.1em;
+        }
+        
+        .transcription-box.filled {
+            border-color: var(--success);
+            background: #f1f8f6;
+        }
+        
+        .result {
+            background: var(--light-bg);
+            border-left: 5px solid var(--primary);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-size: 1.1em;
+        }
+        
+        .result.correct {
+            border-left-color: var(--success);
+            background: #f1f8f6;
+            color: var(--success);
+        }
+        
+        .result.incorrect {
+            border-left-color: var(--danger);
+            background: #ffebee;
+            color: var(--danger);
+        }
+        
+        .result.info {
+            border-left-color: var(--info);
+            background: #e3f2fd;
+            color: var(--info);
+        }
+        
+        .xp-gain {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--success);
+            margin-top: 10px;
+        }
+        
+        .feedback-box {
+            background: white;
+            border: 2px solid var(--info);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 1.05em;
+        }
+        
+        .feedback-box strong {
+            color: var(--primary);
+        }
+        
+        .activity-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .option-btn {
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .option-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .option-btn.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .next-btn {
+            background: var(--primary);
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+        
+        .next-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+        
+        .status-bar {
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            color: var(--text-light);
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎙️ Voice Learning Activities</h1>
+        <p>Complete all activities using voice input and output</p>
+    </div>
+    
+    <div class="container">
+        <!-- Activity Selector -->
+        <div class="activity-selector">
+            <h2>📚 Select Activity</h2>
+            <div class="activities-grid">
+                <button class="activity-btn active" onclick="loadActivity('counting')">1️⃣ Counting</button>
+                <button class="activity-btn" onclick="loadActivity('colors')">🎨 Colors</button>
+                <button class="activity-btn" onclick="loadActivity('alphabet')">🔤 Alphabet</button>
+                <button class="activity-btn" onclick="loadActivity('numbers')">🔢 Numbers</button>
+                <button class="activity-btn" onclick="loadActivity('animals')">🦁 Animals</button>
+                <button class="activity-btn" onclick="loadActivity('fruits')">🍎 Fruits</button>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-label">XP Points</div>
+                <div class="stat-value" id="xpDisplay">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Correct Answers</div>
+                <div class="stat-value" id="correctDisplay">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Accuracy</div>
+                <div class="stat-value" id="accuracyDisplay">0%</div>
+            </div>
+        </div>
+        
+        <!-- Activity Container -->
+        <div class="activity-container">
+            <div class="status-bar" id="statusBar">
+                Status: Loading activity...
+            </div>
+            
+            <div class="activity-title" id="activityTitle">🎙️ Counting Activity</div>
+            
+            <div class="activity-content" id="activityContent">
+                <div class="question-text" id="questionText">Loading...</div>
+                <div class="display-item" id="displayItem"></div>
+                <div id="optionsContainer" class="activity-options"></div>
+            </div>
+            
+            <!-- Voice Controls -->
+            <div class="voice-controls">
+                <button class="voice-btn btn-listen" id="listenBtn" onclick="speakQuestion()">
+                    🔊 Listen
+                </button>
+                <button class="voice-btn btn-record" id="recordBtn" onclick="toggleRecording()">
+                    🎤 Record Answer
+                </button>
+                <button class="voice-btn btn-stop hidden" id="stopBtn" onclick="stopRecording()">
+                    ⏹️ Stop Recording
+                </button>
+                <button class="voice-btn btn-submit" id="submitBtn" onclick="submitAnswer()">
+                    ✓ Submit
+                </button>
+            </div>
+            
+            <div class="recording-indicator" id="recordingIndicator">
+                <span class="recording-dot"></span>
+                <span>Recording...</span>
+            </div>
+            
+            <!-- Transcription Display -->
+            <div class="transcription-box" id="transcriptionBox">
+                Your voice input will appear here...
+            </div>
+            
+            <!-- Result Display -->
+            <div id="resultContainer"></div>
+            
+            <!-- Feedback Box -->
+            <div id="feedbackBox"></div>
+            
+            <!-- Next Button -->
+            <button class="next-btn hidden" id="nextBtn" onclick="nextQuestion()">
+                Next Question ➜
+            </button>
+        </div>
+    </div>
+    
+    <!-- Speech Synthesis Instance -->
+    <script>
+        // =============================================
+        // VOICE RECOGNITION & SYNTHESIS SETUP
+        // =============================================
+        
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        const synth = window.speechSynthesis;
+        
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        
+        let isRecording = false;
+        let userTranscript = '';
+        let currentActivity = 'counting';
+        let currentQuestion = 0;
+        let stats = {
+            xp: 0,
+            correct: 0,
+            total: 0,
+            accuracy: 0
+        };
+        
+        // =============================================
+        // ACTIVITY DATA
+        // =============================================
+        
+        const activities = {
+            counting: {
+                name: 'Counting Activity',
+                icon: '1️⃣',
+                description: 'Listen to a number and count the items, then say the count',
+                questions: [
+                    { 
+                        question: 'How many apples do you see?', 
+                        items: '🍎🍎🍎', 
+                        correctAnswer: 'three',
+                        alternatives: ['3', 'threee', 'three apples'],
+                        hint: 'Listen carefully and count the items shown'
+                    },
+                    { 
+                        question: 'How many stars are there?', 
+                        items: '⭐⭐⭐⭐⭐', 
+                        correctAnswer: 'five',
+                        alternatives: ['5', 'five stars', 'fife'],
+                        hint: 'Count each star carefully'
+                    },
+                    { 
+                        question: 'How many birds do you count?', 
+                        items: '🦅🦅', 
+                        correctAnswer: 'two',
+                        alternatives: ['2', 'two birds', 'to'],
+                        hint: 'Say the number you see'
+                    }
+                ]
+            },
+            colors: {
+                name: 'Colors Activity',
+                icon: '🎨',
+                description: 'Hear a color name and identify it, then say the color',
+                questions: [
+                    { 
+                        question: 'What color is this?', 
+                        items: '🔴', 
+                        correctAnswer: 'red',
+                        alternatives: ['red color', 'red one', 'r e d'],
+                        hint: 'Say the color name you see'
+                    },
+                    { 
+                        question: 'What color do you see?', 
+                        items: '🟦', 
+                        correctAnswer: 'blue',
+                        alternatives: ['blue color', 'blue one', 'blu'],
+                        hint: 'Name this color'
+                    },
+                    { 
+                        question: 'Identify this color', 
+                        items: '🟩', 
+                        correctAnswer: 'green',
+                        alternatives: ['green color', 'green one', 'gren'],
+                        hint: 'What color is displayed?'
+                    }
+                ]
+            },
+            alphabet: {
+                name: 'Alphabet Activity',
+                icon: '🔤',
+                description: 'Hear a letter and say it out loud',
+                questions: [
+                    { 
+                        question: 'Say this letter:', 
+                        items: 'A', 
+                        correctAnswer: 'a',
+                        alternatives: ['A', 'ay', 'letter A'],
+                        hint: 'Pronounce the letter clearly'
+                    },
+                    { 
+                        question: 'What letter is this?', 
+                        items: 'B', 
+                        correctAnswer: 'b',
+                        alternatives: ['B', 'bee', 'letter B'],
+                        hint: 'Say the letter name'
+                    },
+                    { 
+                        question: 'Pronounce this letter:', 
+                        items: 'C', 
+                        correctAnswer: 'c',
+                        alternatives: ['C', 'see', 'letter C'],
+                        hint: 'Say it clearly'
+                    }
+                ]
+            },
+            numbers: {
+                name: 'Numbers Activity',
+                icon: '🔢',
+                description: 'Hear a number and repeat it',
+                questions: [
+                    { 
+                        question: 'Say this number:', 
+                        items: '7', 
+                        correctAnswer: 'seven',
+                        alternatives: ['7', 'sevon', 'seven number'],
+                        hint: 'Pronounce the number'
+                    },
+                    { 
+                        question: 'What number is this?', 
+                        items: '9', 
+                        correctAnswer: 'nine',
+                        alternatives: ['9', 'nyne', 'nine number'],
+                        hint: 'Say the number clearly'
+                    },
+                    { 
+                        question: 'Repeat this number:', 
+                        items: '4', 
+                        correctAnswer: 'four',
+                        alternatives: ['4', 'for', 'four number'],
+                        hint: 'Pronounce it out loud'
+                    }
+                ]
+            },
+            animals: {
+                name: 'Animals Activity',
+                icon: '🦁',
+                description: 'Hear an animal name and say it back',
+                questions: [
+                    { 
+                        question: 'What animal is this?', 
+                        items: '🐶', 
+                        correctAnswer: 'dog',
+                        alternatives: ['dog', 'dogs', 'a dog'],
+                        hint: 'Name this animal'
+                    },
+                    { 
+                        question: 'Say this animal name:', 
+                        items: '🐱', 
+                        correctAnswer: 'cat',
+                        alternatives: ['cat', 'cats', 'a cat'],
+                        hint: 'What is this animal?'
+                    },
+                    { 
+                        question: 'Identify this animal:', 
+                        items: '🐘', 
+                        correctAnswer: 'elephant',
+                        alternatives: ['elephant', 'elefant', 'big animal'],
+                        hint: 'Say the animal name'
+                    }
+                ]
+            },
+            fruits: {
+                name: 'Fruits Activity',
+                icon: '🍎',
+                description: 'Hear a fruit name and repeat it',
+                questions: [
+                    { 
+                        question: 'What fruit is this?', 
+                        items: '🍎', 
+                        correctAnswer: 'apple',
+                        alternatives: ['apple', 'apples', 'an apple'],
+                        hint: 'Say the fruit name'
+                    },
+                    { 
+                        question: 'Say this fruit name:', 
+                        items: '🍌', 
+                        correctAnswer: 'banana',
+                        alternatives: ['banana', 'bananas', 'a banana'],
+                        hint: 'What fruit is shown?'
+                    },
+                    { 
+                        question: 'Identify this fruit:', 
+                        items: '🍊', 
+                        correctAnswer: 'orange',
+                        alternatives: ['orange', 'oranges', 'an orange'],
+                        hint: 'Say the fruit name'
+                    }
+                ]
+            }
+        };
+        
+        // =============================================
+        // TEXT-TO-SPEECH FUNCTION
+        // =============================================
+        
+        function speak(text, rate = 0.9) {
+            return new Promise((resolve) => {
+                synth.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = rate;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                utterance.onend = () => resolve();
+                synth.speak(utterance);
+            });
+        }
+        
+        // =============================================
+        // SPEECH RECOGNITION FUNCTIONS
+        // =============================================
+        
+        recognition.onstart = () => {
+            isRecording = true;
+            userTranscript = '';
+            document.getElementById('recordBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            document.getElementById('recordingIndicator').style.display = 'flex';
+            document.getElementById('transcriptionBox').textContent = 'Listening...';
+        };
+        
+        recognition.onresult = (event) => {
+            let interim = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                
+                if (event.results[i].isFinal) {
+                    userTranscript += transcript + ' ';
+                } else {
+                    interim += transcript;
+                }
+            }
+            
+            const display = userTranscript + interim;
+            document.getElementById('transcriptionBox').textContent = display || 'Listening...';
+            document.getElementById('transcriptionBox').classList.add('filled');
+        };
+        
+        recognition.onerror = (event) => {
+            showResult(`Error: ${event.error}`, 'incorrect');
+        };
+        
+        recognition.onend = () => {
+            isRecording = false;
+            document.getElementById('recordBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            document.getElementById('recordingIndicator').style.display = 'none';
+        };
+        
+        // =============================================
+        // ACTIVITY FUNCTIONS
+        // =============================================
+        
+        function loadActivity(activityName) {
+            currentActivity = activityName;
+            currentQuestion = 0;
+            
+            document.querySelectorAll('.activity-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            loadQuestion();
+        }
+        
+        function loadQuestion() {
+            const activity = activities[currentActivity];
+            const question = activity.questions[currentQuestion];
+            
+            if (!question) {
+                showActivityComplete();
+                return;
+            }
+            
+            document.getElementById('activityTitle').textContent = `${activity.icon} ${activity.name}`;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('displayItem').textContent = question.items;
+            
+            document.getElementById('resultContainer').innerHTML = '';
+            document.getElementById('feedbackBox').innerHTML = '';
+            document.getElementById('transcriptionBox').textContent = 'Your voice input will appear here...';
+            document.getElementById('transcriptionBox').classList.remove('filled');
+            document.getElementById('nextBtn').classList.add('hidden');
+            document.getElementById('submitBtn').classList.remove('hidden');
+            
+            userTranscript = '';
+            
+            document.getElementById('statusBar').textContent = 
+                `Question ${currentQuestion + 1} of ${activity.questions.length}`;
+            
+            // Auto-speak the question
+            setTimeout(() => speakQuestion(), 500);
+        }
+        
+        async function speakQuestion() {
+            const activity = activities[currentActivity];
+            const question = activity.questions[currentQuestion];
+            
+            document.getElementById('listenBtn').disabled = true;
+            await speak(question.question);
+            document.getElementById('listenBtn').disabled = false;
+        }
+        
+        function toggleRecording() {
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                userTranscript = '';
+                recognition.start();
+            }
+        }
+        
+        function stopRecording() {
+            recognition.stop();
+        }
+        
+        function submitAnswer() {
+            const activity = activities[currentActivity];
+            const question = activity.questions[currentQuestion];
+            const answer = userTranscript.trim().toLowerCase();
+            
+            if (!answer) {
+                showResult('Please record an answer first', 'incorrect');
+                return;
+            }
+            
+            const isCorrect = checkAnswer(answer, question.correctAnswer, question.alternatives);
+            
+            if (isCorrect) {
+                handleCorrectAnswer(question);
+            } else {
+                handleIncorrectAnswer(question, answer);
+            }
+            
+            document.getElementById('submitBtn').classList.add('hidden');
+            document.getElementById('nextBtn').classList.remove('hidden');
+        }
+        
+        function checkAnswer(answer, correct, alternatives) {
+            const normalizeText = (text) => text.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+            
+            const normalized = normalizeText(answer);
+            const correctNorm = normalizeText(correct);
+            
+            if (normalized === correctNorm) return true;
+            
+            for (let alt of alternatives) {
+                if (normalizeText(alt) === normalized) return true;
+            }
+            
+            // Partial matching (80% similarity)
+            const similarity = calculateSimilarity(normalized, correctNorm);
+            return similarity > 0.8;
+        }
+        
+        function calculateSimilarity(a, b) {
+            const longer = a.length > b.length ? a : b;
+            const shorter = a.length > b.length ? b : a;
+            
+            if (longer.length === 0) return 1.0;
+            
+            const editDistance = getEditDistance(longer, shorter);
+            return (longer.length - editDistance) / longer.length;
+        }
+        
+        function getEditDistance(a, b) {
+            const costs = [];
+            for (let i = 0; i <= a.length; i++) {
+                let lastValue = i;
+                for (let j = 0; j <= b.length; j++) {
+                    if (i === 0) {
+                        costs[j] = j;
+                    } else if (j > 0) {
+                        let newValue = costs[j - 1];
+                        if (a.charAt(i - 1) !== b.charAt(j - 1)) {
+                            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                        }
+                        costs[j - 1] = lastValue;
+                        lastValue = newValue;
+                    }
+                }
+                if (i > 0) costs[b.length] = lastValue;
+            }
+            return costs[b.length];
+        }
+        
+        async function handleCorrectAnswer(question) {
+            stats.correct++;
+            stats.total++;
+            stats.xp += 10;
+            stats.accuracy = Math.round((stats.correct / stats.total) * 100);
+            updateStats();
+            
+            const message = `Excellent! That's correct! You said "${userTranscript.trim()}". You earned 10 XP!`;
+            showResult(message, 'correct');
+            
+            await speak('Excellent! That is correct!');
+        }
+        
+        async function handleIncorrectAnswer(question, answer) {
+            stats.total++;
+            stats.accuracy = Math.round((stats.correct / stats.total) * 100);
+            updateStats();
+            
+            const message = `Not quite right. You said "${userTranscript.trim()}", but the correct answer is "${question.correctAnswer}". Try listening again!`;
+            showResult(message, 'incorrect');
+            
+            await speak(`The correct answer is ${question.correctAnswer}`);
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('resultContainer');
+            resultDiv.innerHTML = `<div class="result ${type}">📌 ${message}</div>`;
+        }
+        
+        function updateStats() {
+            document.getElementById('xpDisplay').textContent = stats.xp;
+            document.getElementById('correctDisplay').textContent = stats.correct;
+            document.getElementById('accuracyDisplay').textContent = stats.accuracy + '%';
+        }
+        
+        function nextQuestion() {
+            currentQuestion++;
+            const activity = activities[currentActivity];
+            
+            if (currentQuestion >= activity.questions.length) {
+                showActivityComplete();
+            } else {
+                loadQuestion();
+            }
+        }
+        
+        function showActivityComplete() {
+            const activity = activities[currentActivity];
+            const accuracy = stats.accuracy;
+            
+            let message = '🎉 Activity Complete!\n\n';
+            message += `Activity: ${activity.name}\n`;
+            message += `Total XP Earned: ${stats.xp}\n`;
+            message += `Correct Answers: ${stats.correct}/${stats.total}\n`;
+            message += `Accuracy: ${accuracy}%\n\n`;
+            
+            if (accuracy >= 80) {
+                message += '⭐ Excellent performance!';
+            } else if (accuracy >= 60) {
+                message += '👍 Good effort! Keep practicing!';
+            } else {
+                message += '💪 Keep trying! You\'ll improve with practice!';
+            }
+            
+            document.getElementById('activityContent').innerHTML = `
+                <div class="feedback-box">
+                    <strong>${message.replace(/\n/g, '<br>')}</strong>
+                </div>
+            `;
+            
+            document.getElementById('nextBtn').textContent = 'Select New Activity';
+            document.getElementById('nextBtn').classList.remove('hidden');
+            document.getElementById('nextBtn').onclick = () => {
+                document.querySelector('.activity-btn').click();
+            };
+            
+            document.getElementById('listenBtn').disabled = true;
+            document.getElementById('recordBtn').disabled = true;
+            document.getElementById('submitBtn').disabled = true;
+        }
+        
+        // =============================================
+        // INITIALIZATION
+        // =============================================
+        
+        window.addEventListener('load', () => {
+            loadQuestion();
+        });
+    </script>
+</body>
+</html>

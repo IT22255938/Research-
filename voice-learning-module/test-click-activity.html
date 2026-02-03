@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Click Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .test-box {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .test-box h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .test-box p {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .log {
+            background: #f0f0f0;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 0.85em;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .log.success {
+            border-left-color: #4caf50;
+            background: #f1f8f4;
+            color: #2e7d32;
+        }
+        
+        .log.error {
+            border-left-color: #f44336;
+            background: #fdedec;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Activity Click Test</h1>
+        
+        <div class="test-box">
+            <h2>1️⃣ Check if Gamification Page Loads</h2>
+            <p>First, verify the gamification page is accessible:</p>
+            <button class="btn" onclick="testGamificationPage()">Test Page Load</button>
+            <div id="log1" class="log" style="display: none;"></div>
+        </div>
+        
+        <div class="test-box">
+            <h2>2️⃣ Test Clicking an Activity</h2>
+            <p>Simulate clicking "Counting Adventure" button:</p>
+            <div class="button-grid">
+                <button class="btn" onclick="testClickActivity('counting-adventure')">Test Click</button>
+                <button class="btn" onclick="testClickActivity('colors-and-shapes')">Test Colors</button>
+                <button class="btn" onclick="testClickActivity('time-telling')">Test Time</button>
+            </div>
+            <div id="log2" class="log" style="display: none;"></div>
+        </div>
+        
+        <div class="test-box">
+            <h2>3️⃣ Test Activity Loading</h2>
+            <p>Load activity directly without modal:</p>
+            <button class="btn" onclick="testActivityDirect('counting-adventure')">Load Directly</button>
+            <div id="log3" class="log" style="display: none;"></div>
+        </div>
+        
+        <div class="test-box">
+            <h2>✅ Next Step</h2>
+            <p>After testing, go to the actual gamification page:</p>
+            <button class="btn" onclick="window.location.href='/gamification.html'">Go to Gamification</button>
+        </div>
+    </div>
+
+    <script type="module">
+        window.testGamificationPage = async function() {
+            const log = document.getElementById('log1');
+            log.style.display = 'block';
+            log.className = 'log';
+            
+            try {
+                const response = await fetch('/gamification.html');
+                const html = await response.text();
+                
+                if (html.includes('Learning Activities')) {
+                    log.className = 'log success';
+                    log.textContent = '✅ SUCCESS\n\nGamification page loaded correctly!\nPage contains "Learning Activities" section.';
+                } else {
+                    log.className = 'log error';
+                    log.textContent = '❌ ERROR\n\nPage loaded but missing "Learning Activities" section.';
+                }
+            } catch (error) {
+                log.className = 'log error';
+                log.textContent = `❌ ERROR\n\n${error.message}`;
+            }
+        };
+        
+        window.testClickActivity = async function(activityId) {
+            const log = document.getElementById('log2');
+            log.style.display = 'block';
+            log.className = 'log';
+            
+            try {
+                log.textContent = `🔄 Testing click on: ${activityId}...\n\n`;
+                
+                // Simulate what happens when you click an activity
+                const studentId = 'test_student_' + Date.now();
+                localStorage.setItem('studentId', studentId);
+                
+                log.textContent += `✅ Student ID set: ${studentId}\n\n`;
+                
+                // Try to import activity launcher
+                log.textContent += '🔄 Importing activity launcher...\n';
+                const { initializeActivity } = await import('./src/activities/activity-launcher.js');
+                log.textContent += '✅ Activity launcher imported\n\n';
+                
+                // Try to initialize activity
+                log.textContent += `🔄 Initializing ${activityId}...\n`;
+                const launcher = await initializeActivity(activityId, studentId);
+                log.textContent += `✅ Activity initialized!\n`;
+                log.textContent += `Session ID: ${launcher.sessionId}\n`;
+                log.textContent += `Activity: ${launcher.activity.name}\n\n`;
+                
+                // Get first question
+                const question = launcher.getNextQuestion();
+                log.textContent += `✅ Question loaded:\n`;
+                log.textContent += `"${question.narration}"\n`;
+                
+                log.className = 'log success';
+                log.textContent = '✅ SUCCESS\n\n' + log.textContent + '\n\nActivity is ready to display!';
+                
+            } catch (error) {
+                log.className = 'log error';
+                log.textContent = `❌ ERROR\n\n${error.message}\n\nStack: ${error.stack}`;
+                console.error('Test error:', error);
+            }
+        };
+        
+        window.testActivityDirect = async function(activityId) {
+            const log = document.getElementById('log3');
+            log.style.display = 'block';
+            log.className = 'log';
+            
+            try {
+                log.textContent = `🔄 Loading ${activityId} directly...\n\n`;
+                
+                const { getActivityById } = await import('./src/activities/index.js');
+                log.textContent += '✅ Activities index loaded\n\n';
+                
+                const activity = await getActivityById(activityId);
+                log.textContent += `✅ Activity loaded: ${activity.name}\n`;
+                log.textContent += `Questions: ${activity.questionBank.length}\n`;
+                log.textContent += `Target age: ${activity.targetAge[0]}-${activity.targetAge[1]}\n`;
+                log.textContent += `Story character: ${activity.story?.character}\n\n`;
+                
+                // Show first question
+                const firstQuestion = activity.questionBank[0];
+                log.textContent += `✅ First question:\n`;
+                log.textContent += `"${firstQuestion.narration}"\n`;
+                log.textContent += `Expected answers: ${firstQuestion.expectedAnswers.join(', ')}\n`;
+                
+                log.className = 'log success';
+                log.textContent = '✅ SUCCESS\n\n' + log.textContent + '\n\nActivity structure is valid!';
+                
+            } catch (error) {
+                log.className = 'log error';
+                log.textContent = `❌ ERROR\n\n${error.message}\n\nStack: ${error.stack}`;
+                console.error('Test error:', error);
+            }
+        };
+    </script>
+</body>
+</html>

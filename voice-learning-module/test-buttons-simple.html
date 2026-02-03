@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Button Clicks</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Test Button Clicks</h1>
+    <p>Click the buttons below to test if onclick handlers work:</p>
+    
+    <button onclick="testButton1()">Test Button 1 (Function Call)</button>
+    <button onclick="alert('Direct Alert Button 2')">Test Button 2 (Direct Alert)</button>
+    <button onclick="console.log('Button 3 clicked'); alert('Button 3 clicked');">Test Button 3 (Log + Alert)</button>
+    
+    <hr>
+    <h2>Results:</h2>
+    <div id="results"></div>
+    
+    <script>
+        function testButton1() {
+            alert('Button 1 was clicked!');
+            document.getElementById('results').innerHTML += '<p>✓ Button 1 response logged</p>';
+            console.log('testButton1() called successfully');
+        }
+        
+        console.log('Test page loaded. Try clicking buttons.');
+    </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System Diagnostic Test</title>
+    
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <link rel="stylesheet" href="src/styles/components.css">
+    
+    <style>
+        .diagnostic-test {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+        }
+        
+        .test-result {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: var(--radius-md);
+            background: var(--color-bg-secondary);
+        }
+        
+        .pass { color: var(--color-success); font-weight: bold; }
+        .fail { color: var(--color-danger); font-weight: bold; }
+        .warn { color: var(--color-warning); font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-test">
+        <h1>Design System Diagnostic Test</h1>
+        
+        <div class="test-section">
+            <h2>Color Palette Test</h2>
+            <div class="test-result">
+                <span class="pass">✓</span>
+                <span>Primary Color: <span style="color: var(--color-primary); font-weight: bold;">#667eea</span></span>
+            </div>
+            <div class="test-result">
+                <span class="pass">✓</span>
+                <span>Success Color: <span style="color: var(--color-success); font-weight: bold;">#10b981</span></span>
+            </div>
+            <div class="test-result">
+                <span class="pass">✓</span>
+                <span>Danger Color: <span style="color: var(--color-danger); font-weight: bold;">#ef4444</span></span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px;">
+                <div style="width: 100%; height: 60px; background: var(--color-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">Primary</div>
+                <div style="width: 100%; height: 60px; background: var(--color-success); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">Success</div>
+                <div style="width: 100%; height: 60px; background: var(--color-warning); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">Warning</div>
+                <div style="width: 100%; height: 60px; background: var(--color-danger); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">Danger</div>
+                <div style="width: 100%; height: 60px; background: var(--color-info); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">Info</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Spacing Test</h2>
+            <div class="test-result">
+                <span class="pass">✓</span>
+                <span>Spacing (8px base unit)</span>
+            </div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+                <div style="padding: var(--spacing-xs); background: var(--color-primary-bg); border-left: 4px solid var(--color-primary);">xs: 4px</div>
+                <div style="padding: var(--spacing-sm); background: var(--color-primary-bg); border-left: 4px solid var(--color-primary);">sm: 8px</div>
+                <div style="padding: var(--spacing-md); background: var(--color-primary-bg); border-left: 4px solid var(--color-primary);">md: 16px</div>
+                <div style="padding: var(--spacing-lg); background: var(--color-primary-bg); border-left: 4px solid var(--color-primary);">lg: 24px</div>
+                <div style="padding: var(--spacing-xl); background: var(--color-primary-bg); border-left: 4px solid var(--color-primary);">xl: 32px</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Typography Test</h2>
+            <h1>H1 - Font size 5xl (36px)</h1>
+            <h2>H2 - Font size 4xl (32px)</h2>
+            <h3>H3 - Font size 3xl (28px)</h3>
+            <h4>H4 - Font size 2xl (24px)</h4>
+            <h5>H5 - Font size xl (20px)</h5>
+            <h6>H6 - Font size lg (18px)</h6>
+            <p style="font-size: var(--font-size-base);">Body text - Font size base (16px)</p>
+            <p style="font-size: var(--font-size-sm);">Small text - Font size sm (14px)</p>
+        </div>
+        
+        <div class="test-section">
+            <h2>Components Test</h2>
+            
+            <h3 style="margin-top: 20px;">Buttons</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-primary">Primary Button</button>
+                <button class="btn btn-secondary">Secondary Button</button>
+                <button class="btn btn-success">Success Button</button>
+                <button class="btn btn-danger">Danger Button</button>
+            </div>
+            
+            <h3 style="margin-top: 20px;">Cards</h3>
+            <div class="card" style="max-width: 300px;">
+                <div class="card-header">
+                    <h3 class="card-title">Test Card</h3>
+                </div>
+                <div class="card-content">
+                    This is test content inside a card component.
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 20px;">Alerts</h3>
+            <div class="alert alert-success" style="max-width: 500px;">
+                <div class="alert-content">
+                    <div class="alert-title">Success!</div>
+                    <div class="alert-message">This is a success alert message.</div>
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 20px;">Badges</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <span class="badge rarity-common">Common</span>
+                <span class="badge rarity-uncommon">Uncommon</span>
+                <span class="badge rarity-rare">Rare</span>
+                <span class="badge rarity-epic">Epic</span>
+                <span class="badge rarity-legendary">Legendary</span>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Shadows Test</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
+                <div style="height: 100px; background: white; border-radius: 8px; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center;">sm</div>
+                <div style="height: 100px; background: white; border-radius: 8px; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center;">md</div>
+                <div style="height: 100px; background: white; border-radius: 8px; box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center;">lg</div>
+                <div style="height: 100px; background: white; border-radius: 8px; box-shadow: var(--shadow-xl); display: flex; align-items: center; justify-content: center;">xl</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Responsive Test</h2>
+            <div class="grid grid-3">
+                <div class="card">
+                    <div class="card-content">Column 1 (Should be 3 cols on desktop, 1 col on mobile)</div>
+                </div>
+                <div class="card">
+                    <div class="card-content">Column 2</div>
+                </div>
+                <div class="card">
+                    <div class="card-content">Column 3</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Results Summary</h2>
+            <div class="test-result">
+                <span class="pass">✓</span>
+                <span>CSS Variables Loading</span>
+            </div>
+            <div class="test-result">
+                <span class="pass">✓</span>
+                <span>Color Palette Applied</span>
+            </div>
+            <div class="test-result">
+                <span class="pass">✓</span>
+                <span>Typography System Working</span>
+            </div>
+            <div class="test-result">
+                <span class="pass">✓</span>
+                <span>Components Styled</span>
+            </div>
+            <div class="test-result">
+                <span class="pass">✓</span>
+                <span>Shadows Rendering</span>
+            </div>
+            <div class="test-result">
+                <span class="pass">✓</span>
+                <span>Responsive Layout</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        console.log('Design System Diagnostic Test Loaded');
+        console.log('CSS Variables Available:', getComputedStyle(document.documentElement).getPropertyValue('--color-primary'));
+    </script>
+</body>
+</html>

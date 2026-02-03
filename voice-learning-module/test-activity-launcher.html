@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Activity Launcher Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Activity Launcher Diagnostics</h1>
+    
+    <button onclick="testBackendHealth()">1. Test Backend Health</button>
+    <button onclick="testActivityImport()">2. Test Activity Import</button>
+    <button onclick="testSessionCreation()">3. Test Session Creation</button>
+    <button onclick="testFullFlow()">4. Test Full Activity Flow</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:5000';
+        let testResults = [];
+
+        function log(title, message, isError = false) {
+            const className = isError ? 'error' : 'success';
+            const html = `<div class="test-result ${className}"><strong>${title}:</strong><br/>${message}</div>`;
+            document.getElementById('results').insertAdjacentHTML('beforeend', html);
+            console.log(`${title}:`, message);
+        }
+
+        async function testBackendHealth() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`);
+                const data = await response.json();
+                log('Backend Health', `✅ Status: ${response.status}\n${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                log('Backend Health', `❌ Error: ${error.message}`, true);
+            }
+        }
+
+        async function testActivityImport() {
+            try {
+                const { getActivityById } = await import('./src/activities/index.js');
+                const activity = await getActivityById('number-recognition');
+                log('Activity Import', `✅ Loaded: ${activity.name}\n${activity.questionBank.length} questions`);
+            } catch (error) {
+                log('Activity Import', `❌ Error: ${error.message}`, true);
+            }
+        }
+
+        async function testSessionCreation() {
+            try {
+                const payload = {
+                    student_id: 'test-student-' + Date.now(),
+                    activity_id: 'number-recognition'
+                };
+                
+                const response = await fetch(`${BACKEND_URL}/api/db/sessions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                log('Session Creation', `✅ Status: ${response.status}\nSession ID: ${data.session_id}`);
+            } catch (error) {
+                log('Session Creation', `❌ Error: ${error.message}`, true);
+            }
+        }
+
+        async function testFullFlow() {
+            try {
+                // 1. Create student
+                const studentPayload = {
+                    name: 'Test Student',
+                    age: 8,
+                    special_needs: 'General'
+                };
+                
+                const studentResponse = await fetch(`${BACKEND_URL}/api/db/students`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(studentPayload)
+                });
+                
+                const studentData = await studentResponse.json();
+                const studentId = studentData.student_id;
+                log('1. Create Student', `✅ Student ID: ${studentId}`);
+
+                // 2. Import activity
+                const { initializeActivity } = await import('./src/activities/activity-launcher.js');
+                log('2. Import Activity Launcher', '✅ Imported successfully');
+
+                // 3. Initialize activity
+                const launcher = await initializeActivity('number-recognition', studentId);
+                log('3. Initialize Activity', `✅ Session ID: ${launcher.sessionId}`);
+
+                // 4. Get a question
+                const question = launcher.getNextQuestion();
+                log('4. Get Question', `✅ Question: ${question.prompt}`);
+
+                // 5. Record a response
+                const result = await launcher.recordResponse(question, 'one', 3);
+                log('5. Record Response', `✅ Correct: ${result.isCorrect}, XP: ${result.xpEarned}`);
+
+                log('FULL FLOW TEST', '✅ All tests passed!');
+            } catch (error) {
+                log('Full Flow Test', `❌ Error: ${error.message}\n${error.stack}`, true);
+            }
+        }
+    </script>
+</body>
+</html>
